@@ -12,17 +12,21 @@ const rooms = {};
 
 io.on('connection', socket => {
 
-  // Create room ID
-    if (!rooms[socket.id]) {
-      rooms[socket.id] = socket.id;
-    }
+    // Create room ID
+    socket.on("createRoom", (data) => {
+      rooms[data['roomID']] = socket.id
+      console.log("received new rooms: ", rooms)
+
+    })
+
     socket.emit("yourID", socket.id);
+    io.sockets.emit("allRooms", rooms);
 
-
-    console.log("rooms is", rooms)
 
     socket.on("connectRoom", (data) => {
-      io.to(data.roomToJoin).emit('hey', {signal: data.signalData, from: data.from})
+      console.log("connect req to", rooms[data.roomToJoin])
+
+      io.to(rooms[data.roomToJoin]).emit('hey', {signal: data.signalData})
     })
 
 });
@@ -30,4 +34,4 @@ io.on('connection', socket => {
 const port = process.env.PORT || 8080;
 
 // console.log that your server is up and running
-server.listen(8080, () => console.log('server is running on port 8000'));
+server.listen(8080, () => console.log('server is running on port 8080'));

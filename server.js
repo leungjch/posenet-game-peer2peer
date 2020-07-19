@@ -16,7 +16,14 @@ io.on('connection', socket => {
     if (!rooms[socket.id]) {
       rooms[socket.id] = socket.id;
     }
+    socket.emit("yourID", socket.id);
+
+
     console.log("rooms is", rooms)
+
+    socket.on("connectRoom", (data) => {
+      io.to(data.roomToJoin).emit('hey', {signal: data.signalData, from: data.from})
+    })
 
 });
 

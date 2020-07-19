@@ -66,19 +66,63 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function App() {
-  const [data, setData] = useState(null);
+  const [yourID, setYourID] = useState("");
+  const [rooms, setRooms] = useState({});
+
+
   const [stream, setStream] = useState();
+  const [playingSolo, setPlayingSolo] = useState(false);
+
+  const [inviteAccepted, setInviteAccepted] = useState(false); // Your invite has been accepted
+
+  const [userIncoming, setUserIncoming] = useState(false); // Someone is requesting to join your room
+  const [userIncomingAccepted, setUserIncomingAccepted] = useState(false); // You accepted the incoming person
+
 
   const socket = useRef();
   const userVideo = useRef();
   const partnerVideo = useRef();
   
+  // Open a new game
   var playSolo = () => {
-    console.log("play game");
+    if (!playingSolo)
+    {
+      let myp5 = new p5(mySketch);
+      console.log("play game");
+      setPlayingSolo(true)
 
-    let myp5 = new p5(mySketch);
-
+    }
+    else
+    {
+      console.log("already playing game")
+    }
   }
+
+  // 
+  var connectRoom = (id) =>{
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      stream: stream,
+    });
+
+    peer.on("signal", data => {
+      socket.current.emit("connectRoom", {roomToJoin: id, signalData: data, from: yourID})
+    })
+
+    peer.on("stream", stream => {
+      if (partnerVideo.current) {
+        partnerVideo.current.srcObject = stream;
+      }
+    })
+
+    socket.current.on("inviteAccepted", signal => {
+      setInviteAccepted(true);
+      peer.signal(signal);
+    })
+  }
+
+  // Load webcam on visit site
   useEffect( () => {
       // Call our fetch function below once the component mounts
 
@@ -92,6 +136,7 @@ export default function App() {
       })
     }, []);
 
+  
   let UserVideo;
   if (stream) {
     UserVideo = (
@@ -102,6 +147,7 @@ export default function App() {
   const classes = useStyles();
 
   return (
+    
     <MuiThemeProvider theme = {themeDark}>
       <CssBaseline />
     <div className={classes.root}>
@@ -125,7 +171,6 @@ export default function App() {
       m="auto"
       >
 
-
         <Grid container spacing = {3} 
         style={{backgroundColor: "#333333", borderRadius: 10}}>
           <Grid item xs={12}>
@@ -137,11 +182,8 @@ export default function App() {
           </Grid>
           <Grid item xs = {6}>
           <Button variant="contained" color="primary" fullWidth={true}>Invite a Friend</Button>
-
           </Grid>
         </Grid>
-
-
 
       </Box>
 

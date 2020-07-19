@@ -19,15 +19,16 @@ io.on('connection', socket => {
 
     })
 
+    // Give user their ID
     socket.emit("yourID", socket.id);
-    io.sockets.emit("allRooms", rooms);
-
 
     socket.on("connectRoom", (data) => {
-      console.log("connect req to", rooms[data.roomToJoin])
-
-      io.to(rooms[data.roomToJoin]).emit('hey', {signal: data.signalData})
+      io.to(rooms[data.roomToJoin]).emit('hey', {signal: data.signalData, from: data.from})
     })
+
+    socket.on("acceptIncoming", (data) => {
+      io.to(data.to).emit('acceptIncoming', data.signal);
+  })
 
 });
 

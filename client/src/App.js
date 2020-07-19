@@ -69,7 +69,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App() {
   const [yourID, setYourID] = useState("");
-  const [rooms, setRooms] = useState({});
   const [inviteCode, setInviteCode] = useState('') // Client creates an invite code
   const [inputInviteCode, setInputInviteCode] = useState('') // Client writing down an invite code from someone else
 
@@ -78,8 +77,11 @@ export default function App() {
 
   const [connectAccepted, setConnectAccepted] = useState(false); // Your invite has been accepted
 
-  const [userIncoming, setUserIncoming] = useState(false); // Someone is requesting to join your room
-  const [userIncomingAccepted, setUserIncomingAccepted] = useState(false); // You accepted the incoming person
+  const [incoming, setIncoming] = useState(false) // boolean indicating whether someone is attempting to join your room
+  const [incomingAccepted, setIncomingAccepted] = useState(false) // boolean indicating whether you accepted the user's request to join
+
+  const [incomingUser, setIncomingUser] = useState(""); // ID of the incoming user
+  const [incomingUserSignal, setIncomingUserSignal] = useState(); // signal of incoming user
 
 
   const socket = useRef();
@@ -96,7 +98,6 @@ export default function App() {
     }
   }
   
-
   // Open a new game
   var playSolo = () => {
     if (!playingSolo)
@@ -111,30 +112,58 @@ export default function App() {
     }
   }
 
-  // 
+  // Connect to a room
   var connectRoom = () =>{
+    if (!incomingAccepted)
+    {
+      const peer = new Peer({
+        initiator: true,
+        trickle: false,
+        stream: stream,
+      });
+  
+      peer.on("signal", data => {
+        socket.current.emit("connectRoom", {roomToJoin: inputInviteCode, signalData: data, from:yourID})
+      })
+  
+      peer.on("stream", stream => {
+        if (partnerVideo.current) {
+          partnerVideo.current.srcObject = stream;
+        }
+      })
+  
+      socket.current.on("acceptIncoming", signal => {
+        setIncomingAccepted(true);
+        setIncoming(false);
+        peer.signal(signal);
+        console.log("accepted user's request")
+      })
+  
+    }
+
+  }
+
+  // You accepted the incoming user's request to join
+  var acceptIncoming = () => {
+    setIncomingAccepted(true);
     const peer = new Peer({
-      initiator: true,
+      initiator: false,
       trickle: false,
       stream: stream,
     });
-
-
     peer.on("signal", data => {
-      socket.current.emit("connectRoom", {roomToJoin: inputInviteCode, signalData: data})
+      socket.current.emit("acceptIncoming", {signal: data, to: incomingUser})
     })
-
+    
     peer.on("stream", stream => {
-      if (partnerVideo.current) {
-        partnerVideo.current.srcObject = stream;
-      }
-    })
 
-    socket.current.on("connectAccepted", signal => {
-      setConnectAccepted(true);
-      peer.signal(signal);
-    })
+      partnerVideo.current.srcObject = stream
+    });
 
+    peer.signal(incomingUserSignal)
+
+
+    setIncoming(false); // user accepted request, so close the incoming button
   }
 
   // Load webcam on visit site
@@ -152,13 +181,20 @@ export default function App() {
 
       // Listen for receiving join request
       socket.current.on("hey", (data) => {
-        console.log("being called")
-        // setReceivingCall(true);
-        // setCaller(data.from);
-        // setCallerSignal(data.signal);
+        if (!incomingAccepted)
+        {
+          setIncoming(true);
+          setIncomingUser(data.from);
+          setIncomingUserSignal(data.signal);
+          console.log(`User ${data.from} is joining your room`)
+        }
       })
   
-
+      // Get your user id
+      socket.current.on("yourID", (id) => {
+        setYourID(id);
+        console.log('myID is', id)
+      })
 
       // Create a new room 
       // Problem, figure out a way to prevent webcam from loading again
@@ -171,6 +207,26 @@ export default function App() {
       
     }, [inviteCode]);
 
+    let incomingUserNotification;
+    if (incoming)
+    {
+      console.log("should be no ", incoming, incomingAccepted)
+      incomingUserNotification = (
+
+        <Grid item xs = {6}>
+        <Button onClick={acceptIncoming}>Accept Join Request</Button> 
+        </Grid>
+      )
+    }
+    else
+    {
+      console.log("should be no ", incoming, incomingAccepted)
+
+      incomingUserNotification = (
+        <Grid item xs = {6}>
+        </Grid>
+      )
+    }
   
   let UserVideo;
   if (stream) {
@@ -178,6 +234,17 @@ export default function App() {
       <video playsInline muted ref={userVideo} autoPlay />
     );
   }
+
+  let PartnerVideo;
+  if (incomingAccepted)
+  {
+    PartnerVideo = (
+      <video playsInline muted ref={partnerVideo} autoPlay />
+    );
+  }
+
+
+
 
   const classes = useStyles();
 
@@ -193,9 +260,13 @@ export default function App() {
       m="auto"
       >
         <Grid container spacing = {3}>
-          <Grid item xs={12}>
+          <Grid item xs={6}>
             {UserVideo}
           </Grid> 
+          <Grid item xs={6}>
+          {PartnerVideo}
+          </Grid>
+
         </Grid>
       </Box>
 
@@ -211,14 +282,17 @@ export default function App() {
           <Grid item xs={12}>
           <Button onClick = {playSolo} variant="contained" color="primary" size="large" fullWidth={true}>Play Solo</Button>
           </Grid>
-          <Grid item xs = {6}>
-          <TextField id="standard-basic" onChange={(event) => setInputInviteCode(event.target.value)} label="Invite Code" />
-          <Button variant="contained" onClick = {connectRoom} color="primary" fullWidth={true}>Join a Friend</Button>
 
+          <Grid item xs = {6}>
+            <TextField id="standard-basic" onChange={(event) => setInputInviteCode(event.target.value)} label="Invite Code" />
+          </Grid>
+
+          <Grid item xs = {6}>
+          <Button variant="contained" onClick = {connectRoom} color="primary" fullWidth={true}>Join a Friend</Button>
           </Grid>
           <Grid item xs = {6}>
           <Button onClick = {generateInvite} variant="contained" color="primary" fullWidth={true}>Invite a Friend {inviteCode}</Button>
-
+          {incomingUserNotification}
 
           </Grid>
         </Grid>

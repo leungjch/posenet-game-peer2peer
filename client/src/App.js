@@ -138,14 +138,15 @@ export default function App() {
         peer.signal(signal);
         console.log("accepted user's request")
       })
-  
     }
-
   }
 
   // You accepted the incoming user's request to join
   var acceptIncoming = () => {
+    console.log("accepted join")
     setIncomingAccepted(true);
+    setIncoming(false); // user accepted request, so close the incoming button
+
     const peer = new Peer({
       initiator: false,
       trickle: false,
@@ -153,6 +154,8 @@ export default function App() {
     });
     peer.on("signal", data => {
       socket.current.emit("acceptIncoming", {signal: data, to: incomingUser})
+      setIncomingAccepted(true)
+      setIncoming(false)
     })
     
     peer.on("stream", stream => {
@@ -162,9 +165,8 @@ export default function App() {
 
     peer.signal(incomingUserSignal)
 
-
-    setIncoming(false); // user accepted request, so close the incoming button
   }
+
 
   // Load webcam on visit site
   useEffect( () => {
@@ -189,7 +191,6 @@ export default function App() {
           console.log(`User ${data.from} is joining your room`)
         }
       })
-  
       // Get your user id
       socket.current.on("yourID", (id) => {
         setYourID(id);
@@ -202,13 +203,11 @@ export default function App() {
       if (inviteCode) {
         socket.current.emit("createRoom", {roomID: inviteCode})
       }
-
-
       
     }, [inviteCode]);
 
     let incomingUserNotification;
-    if (incoming)
+    if (incoming && !incomingAccepted)
     {
       console.log("should be no ", incoming, incomingAccepted)
       incomingUserNotification = (
@@ -289,11 +288,17 @@ export default function App() {
 
           <Grid item xs = {6}>
           <Button variant="contained" onClick = {connectRoom} color="primary" fullWidth={true}>Join a Friend</Button>
-          </Grid>
-          <Grid item xs = {6}>
-          <Button onClick = {generateInvite} variant="contained" color="primary" fullWidth={true}>Invite a Friend {inviteCode}</Button>
           {incomingUserNotification}
 
+          </Grid>
+          <Grid item xs = {6}>
+          <Button onClick = {generateInvite} variant="contained" color="primary" fullWidth={true}>Invite a Friend</Button>
+          
+
+          </Grid>
+
+          <Grid item xs = {6}>
+          {inviteCode}
           </Grid>
         </Grid>
       </Box>

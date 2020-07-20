@@ -1,4 +1,4 @@
-const { QuadTree, Circle, Point, Rectangle } = require('./quadtree')
+import { QuadTree, Circle, Point, Rectangle } from "./quadtree"
 
 
 function choose(choices) {
@@ -7,7 +7,7 @@ function choose(choices) {
   }
 
 // Types: 'roamer', 'seeker', 'boss', 'shooter'
-class Enemy {
+export class Enemy {
     constructor(icons, WIDTH, HEIGHT)
     {
         this.types = ['roamer', 'seeker', 'robot']
@@ -127,5 +127,3 @@ class Enemy {
     }
 }
 
-
-module.exports = { Enemy }

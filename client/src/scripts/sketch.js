@@ -1,7 +1,6 @@
-// var QuadTreeTools = require('./classes/quadtree')
-const { Player } = require('./classes/player.js')
-const { Enemy } = require('./classes/enemy.js')
-const { QuadTree, Circle, Point, Rectangle } = require('./classes/quadtree.js')
+import { Player } from "./classes/player"
+import { Enemy } from "./classes/enemy"
+import { QuadTree, Circle, Point, Rectangle } from "./classes/quadtree"
 
 var p5 = require('p5');
 
@@ -442,4 +441,4 @@ var sketch = function(p) {
     }
 }
 
-module.exports = sketch;
+export {sketch}

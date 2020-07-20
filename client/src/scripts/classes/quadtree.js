@@ -1,4 +1,4 @@
-  class Point {
+class Point {
       constructor(x,y, entity) {
           this.x = x
           this.y = y
@@ -6,7 +6,7 @@
       }
   }
 
-  class Rectangle {
+class Rectangle {
       constructor(x,y,w,h) {
           this.x = x
           this.y = y 
@@ -29,7 +29,7 @@
       }
   }
 
-  class Circle {
+class Circle {
       constructor(x,y,r)
       {
           this.x = x
@@ -71,7 +71,7 @@
         }
   }
 
-  class QuadTree {
+class QuadTree {
       constructor(boundary, capacity) {
           if (!boundary) {
             throw TypeError('boundary is null or undefined');
@@ -173,4 +173,9 @@
       // }
   }
 
-module.exports = { Point, Rectangle, Circle, QuadTree }
+  export {
+    Point,
+    Rectangle,
+    Circle,
+    QuadTree
+  }

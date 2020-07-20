@@ -22,7 +22,9 @@ import Grid from '@material-ui/core/Grid';
 
 var p5 = require('p5');
 var shortid = require('shortid')
-var mySketch = require('./scripts/sketch.js')
+// var mySketch = require('./scripts/sketch.js')
+
+import {sketch} from "./scripts/sketch.js"
 
 const themeLight = createMuiTheme({
   palette: {
@@ -105,7 +107,7 @@ export default function App() {
   var playSolo = () => {
     if (!playingSolo)
     {
-      let myp5 = new p5(mySketch);
+      let myp5 = new p5(sketch);
       console.log("play game");
       setPlayingSolo(true)
     }

@@ -1,7 +1,6 @@
-const { QuadTree, Circle, Point, Rectangle } = require('./quadtree')
+import { QuadTree, Circle, Point, Rectangle } from "./quadtree"
 
-
-class Player {
+export class Player {
     constructor(WIDTH, HEIGHT)
     {
         this.hp = 100
@@ -30,5 +29,3 @@ class Player {
 
     }
 }
-
-module.exports = { Player };

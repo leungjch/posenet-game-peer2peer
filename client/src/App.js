@@ -18,13 +18,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
+
+import {sketch} from "./scripts/sketch.js"
+
 import Grid from '@material-ui/core/Grid';
 
 var p5 = require('p5');
 var shortid = require('shortid')
 // var mySketch = require('./scripts/sketch.js')
 
-import {sketch} from "./scripts/sketch.js"
 
 const themeLight = createMuiTheme({
   palette: {

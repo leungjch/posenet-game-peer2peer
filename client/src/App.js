@@ -12,12 +12,12 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Alert from '@material-ui/lab/Alert';
 
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-
 
 import {sketch} from "./scripts/sketch.js"
 
@@ -75,6 +75,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App() {
   const [yourID, setYourID] = useState("");
+
+  const [userInactive, setUserInactive] = useState(false)
+
   const [inviteCode, setInviteCode] = useState('') // Client creates an invite code
   const [inputInviteCode, setInputInviteCode] = useState('') // Client writing down an invite code from someone else
 
@@ -101,7 +104,6 @@ export default function App() {
     {
       setInviteCode(shortid.generate());
       // Send new room ID to server
-
     }
   }
   
@@ -212,15 +214,20 @@ export default function App() {
         })
       }
 
+      if (!userInactive)
+      {
+        socket.current.on("kick", (data) => {
+          setUserInactive(true);
+          console.log("You've been kicked");
+        })
+      }
 
       // Create a new room 
       // Problem, figure out a way to prevent webcam from loading again
       if (inviteCode !== "") {
         console.log("invite code is", inviteCode)
-
         socket.current.emit("createRoom", {roomID: inviteCode})
       }
-      
       socket.current.emit("sendReady", {isReady: youReady, to: incomingUser})
 
     // Set ready feedback
@@ -228,10 +235,6 @@ export default function App() {
       console.log("received ready on client")
       setOtherReady(data.isReady);
       })
-
-      console.log("emit ready")
-
-
     }, [inviteCode, youReady]);
 
     let incomingUserNotification;
@@ -279,6 +282,14 @@ export default function App() {
     );
   }
 
+  let userInactiveElement;
+  if (userInactive)
+  {
+    userInactiveElement = (
+      <Alert severity="error">You've been removed for inactivity. Please reload the page to play again.</Alert>
+    )
+  }
+
   const classes = useStyles();
 
   return (
@@ -286,6 +297,7 @@ export default function App() {
     <MuiThemeProvider theme = {themeDark}>
       <CssBaseline />
     <div className={classes.root}>
+      {userInactiveElement}
       <Box
       justifyContent="center"
       justify="center"

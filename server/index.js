@@ -16,12 +16,29 @@ const port = process.env.PORT || 8080;
 
 io.on('connection', socket => {
 
+  // If user has disconnected, remove the room
+  socket.on('disconnect', (reason) => {
+    io.to(socket.id).emit('kick', {msg: "You've disconnected"})
+    for (var room in rooms)
+    {
+      if (rooms.hasOwnProperty(room) && rooms[room] === socket.id)
+      {
+        delete rooms[room];
+      }
+    }
+
+    console.log(`${socket.id} has left`)
+    console.log("rooms is now", rooms)
+  });
+
     // Create room ID
     socket.on("createRoom", (data) => {
       rooms[data['roomID']] = socket.id
       console.log("received new rooms: ", rooms)
 
     })
+
+
 
     // Give user their ID
     socket.emit("yourID", socket.id);

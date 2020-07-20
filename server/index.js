@@ -1,14 +1,18 @@
 const express = require('express');
 const http = require("http");
+const path = require('path');
+const shortid = require('shortid');
+const socket = require("socket.io");
+
 const app = express();
 const server = http.createServer(app);
-const shortid = require('shortid');
 
 
-const socket = require("socket.io");
 const io = socket(server);
 
 const rooms = {};
+const port = process.env.PORT || 8080;
+
 
 io.on('connection', socket => {
 
@@ -37,9 +41,14 @@ io.on('connection', socket => {
 
 });
 
-app.get('/', function (req, res) { res.send('Hello'); });
 
-const port = process.env.PORT || 8080;
+app.use(express.static(path.resolve(__dirname, '../client/build')));
+
+ // All remaining requests return the React app, so it can handle routing.
+ app.get('*', function(request, response) {
+  response.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+});
+
 
 // console.log that your server is up and running
 server.listen(port, () => console.log('server is running on port 8080'));

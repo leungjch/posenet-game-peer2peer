@@ -30,6 +30,11 @@ io.on('connection', socket => {
       io.to(data.to).emit('acceptIncoming', data.signal);
   })
 
+    socket.on("sendReady", (data) => {
+      console.log("received indicate ready on server")
+      io.to(data.to).emit("receiveReady", {isReady: data.isReady})
+    })
+
 });
 
 const port = process.env.PORT || 8080;

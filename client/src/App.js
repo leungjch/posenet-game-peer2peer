@@ -7,6 +7,8 @@ import Peer from "simple-peer";
 import logo from './logo.svg';
 import './App.css';
 import Box from '@material-ui/core/Box';
+import CheckIcon from '@material-ui/icons/Check';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -75,13 +77,15 @@ export default function App() {
   const [stream, setStream] = useState();
   const [playingSolo, setPlayingSolo] = useState(false);
 
-  const [connectAccepted, setConnectAccepted] = useState(false); // Your invite has been accepted
-
   const [incoming, setIncoming] = useState(false) // boolean indicating whether someone is attempting to join your room
   const [incomingAccepted, setIncomingAccepted] = useState(false) // boolean indicating whether you accepted the user's request to join
 
   const [incomingUser, setIncomingUser] = useState(""); // ID of the incoming user
   const [incomingUserSignal, setIncomingUserSignal] = useState(); // signal of incoming user
+
+  const [youReady, setYouReady] = useState(false); // if you are ready to play
+  const [otherReady, setOtherReady] = useState(false); // if other user is ready to play
+
 
 
   const socket = useRef();
@@ -92,9 +96,8 @@ export default function App() {
     if (inviteCode === '')
     {
       setInviteCode(shortid.generate());
-      console.log("invite code is " , inviteCode) 
       // Send new room ID to server
-  
+
     }
   }
   
@@ -158,13 +161,17 @@ export default function App() {
       setIncoming(false)
     })
     
+    // Get stream
     peer.on("stream", stream => {
-
       partnerVideo.current.srcObject = stream
     });
 
     peer.signal(incomingUserSignal)
 
+  }
+
+  var handleReady = () => {
+    setYouReady(!youReady);
   }
 
 
@@ -191,25 +198,41 @@ export default function App() {
           console.log(`User ${data.from} is joining your room`)
         }
       })
-      // Get your user id
-      socket.current.on("yourID", (id) => {
-        setYourID(id);
-        console.log('myID is', id)
-      })
+      // Make sure ID is set only once
+      if (yourID === "")
+      {
+        // Get your user id
+        socket.current.on("yourID", (id) => {
+          setYourID(id);
+          console.log('myID is', id)
+        })
+      }
+
 
       // Create a new room 
       // Problem, figure out a way to prevent webcam from loading again
-      console.log("invite code is", inviteCode)
-      if (inviteCode) {
+      if (inviteCode !== "") {
+        console.log("invite code is", inviteCode)
+
         socket.current.emit("createRoom", {roomID: inviteCode})
       }
       
-    }, [inviteCode]);
+      socket.current.emit("sendReady", {isReady: youReady, to: incomingUser})
+
+    // Set ready feedback
+    socket.current.on("receiveReady", data => {
+      console.log("received ready on client")
+      setOtherReady(data.isReady);
+      })
+
+      console.log("emit ready")
+
+
+    }, [inviteCode, youReady]);
 
     let incomingUserNotification;
     if (incoming && !incomingAccepted)
     {
-      console.log("should be no ", incoming, incomingAccepted)
       incomingUserNotification = (
 
         <Grid item xs = {6}>
@@ -219,12 +242,22 @@ export default function App() {
     }
     else
     {
-      console.log("should be no ", incoming, incomingAccepted)
 
       incomingUserNotification = (
         <Grid item xs = {6}>
         </Grid>
       )
+    }
+
+    let readyButtons;
+    if (incomingAccepted && (!youReady || !otherReady))
+    {
+      readyButtons = (
+        <ButtonGroup color="primary" aria-label="outlined primary button group">
+            <Button onClick={handleReady}>{youReady ? "Click to Unready" : "Click to Ready"} </Button>
+            <Button >{otherReady ? "Friend Ready" : "Friend Not Ready"} </Button>
+        </ButtonGroup>
+        )
     }
   
   let UserVideo;
@@ -241,9 +274,6 @@ export default function App() {
       <video playsInline muted ref={partnerVideo} autoPlay />
     );
   }
-
-
-
 
   const classes = useStyles();
 
@@ -279,6 +309,7 @@ export default function App() {
         <Grid container spacing = {3} 
         style={{backgroundColor: "#333333", borderRadius: 10}}>
           <Grid item xs={12}>
+          {readyButtons}
           <Button onClick = {playSolo} variant="contained" color="primary" size="large" fullWidth={true}>Play Solo</Button>
           </Grid>
 
@@ -292,7 +323,7 @@ export default function App() {
 
           </Grid>
           <Grid item xs = {6}>
-          <Button onClick = {generateInvite} variant="contained" color="primary" fullWidth={true}>Invite a Friend</Button>
+          <Button onClick = {generateInvite} variant="contained" color="primary" fullWidth={true}>Generate Invite Code</Button>
           
 
           </Grid>

@@ -37,6 +37,8 @@ io.on('connection', socket => {
 
 });
 
+app.get('/', function (req, res) { res.send('Hello'); });
+
 const port = process.env.PORT || 8080;
 
 // console.log that your server is up and running

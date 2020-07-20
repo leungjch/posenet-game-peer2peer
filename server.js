@@ -40,4 +40,4 @@ io.on('connection', socket => {
 const port = process.env.PORT || 8080;
 
 // console.log that your server is up and running
-server.listen(8080, () => console.log('server is running on port 8080'));
+server.listen(port, () => console.log('server is running on port 8080'));

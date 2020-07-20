@@ -162,7 +162,7 @@ export default function App() {
       stream: stream,
     });
     peer.on("signal", data => {
-      socket.current.emit("acceptIncoming", {signal: data, to: incomingUser})
+      socket.current.emit("acceptIncoming", {signal: data, roomID: inviteCode, to: incomingUser, from: yourID})
       setIncomingAccepted(true)
       setIncoming(false)
     })
@@ -214,13 +214,11 @@ export default function App() {
         })
       }
 
-      if (!userInactive)
-      {
         socket.current.on("kick", (data) => {
           setUserInactive(true);
-          console.log("You've been kicked");
+          console.log("Someone disconnected");
         })
-      }
+  
 
       // Create a new room 
       // Problem, figure out a way to prevent webcam from loading again
@@ -278,7 +276,7 @@ export default function App() {
   if (incomingAccepted)
   {
     PartnerVideo = (
-      <video playsInline muted ref={partnerVideo} autoPlay />
+      <video playsInline ref={partnerVideo} autoPlay />
     );
   }
 
@@ -349,7 +347,6 @@ export default function App() {
           </Grid>
         </Grid>
       </Box>
-
 
     </div>
     </MuiThemeProvider>

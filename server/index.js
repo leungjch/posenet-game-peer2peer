@@ -18,11 +18,14 @@ io.on('connection', socket => {
 
   // If user has disconnected, remove the room
   socket.on('disconnect', (reason) => {
-    io.to(socket.id).emit('kick', {msg: "You've disconnected"})
     for (var room in rooms)
     {
-      if (rooms.hasOwnProperty(room) && rooms[room] === socket.id)
+      console.log("looping", room, "looking for", socket.id)
+
+      if (rooms.hasOwnProperty(room) && rooms[room].includes(socket.id))
       {
+        // Emit disconnect message to all clients in room
+        io.in(socket.id).emit('kick', {msg: "Someone disconnected"}) // This doesn't work
         delete rooms[room];
       }
     }
@@ -33,12 +36,9 @@ io.on('connection', socket => {
 
     // Create room ID
     socket.on("createRoom", (data) => {
-      rooms[data['roomID']] = socket.id
+      rooms[data['roomID']] = [socket.id]
       console.log("received new rooms: ", rooms)
-
     })
-
-
 
     // Give user their ID
     socket.emit("yourID", socket.id);
@@ -47,15 +47,16 @@ io.on('connection', socket => {
       io.to(rooms[data.roomToJoin]).emit('hey', {signal: data.signalData, from: data.from})
     })
 
+    // Inviting user has accepted incoming user
     socket.on("acceptIncoming", (data) => {
       io.to(data.to).emit('acceptIncoming', data.signal);
-  })
-
-    socket.on("sendReady", (data) => {
-      console.log("received indicate ready on server")
-      io.to(data.to).emit("receiveReady", {isReady: data.isReady})
+      rooms[data.roomID].push(data.from) // Add other user ID to the room
     })
 
+  // Either peers have changed their ready status
+    socket.on("sendReady", (data) => {
+      io.to(data.to).emit("receiveReady", {isReady: data.isReady})
+    })
 });
 
 

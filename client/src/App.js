@@ -88,6 +88,7 @@ export default function App() {
 
   const [stream, setStream] = useState();
   const [playingSolo, setPlayingSolo] = useState(false);
+  const [playingMulti, setPlayingMulti] = useState(false);
 
   const [incoming, setOther] = useState(false) // boolean indicating whether someone is attempting to join your room
   const [incomingAccepted, setOtherAccepted] = useState(false) // boolean indicating whether you accepted the user's request to join
@@ -250,7 +251,6 @@ export default function App() {
         console.log("received ready on client")
         setOtherReady(data.isReady);
         })
-
     
       }, [inviteCode, youReady, otherReady]);
 
@@ -284,6 +284,12 @@ export default function App() {
         </ButtonGroup>
         )
     }
+
+    if (youReady && otherReady && !playingMulti)  {
+      let myp5 = new p5(sketch);
+      setPlayingMulti(true);
+    }
+  // Conditionally render elements
   
   let UserVideo;
   if (stream) {
@@ -315,6 +321,7 @@ export default function App() {
       <Button variant="contained" fullWidth={true} style={{textTransform: 'none'}} onClick={() => {navigator.clipboard.writeText(inviteCode)}}>Your Invite Code: {inviteCode}</Button> 
     );
   }
+
 
   const classes = useStyles();
 

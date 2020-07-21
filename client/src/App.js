@@ -119,6 +119,10 @@ export default function App() {
     if (!playingSolo)
     {
       let myp5 = new p5(sketch);
+
+      var canvas = document.getElementById('defaultCanvas0');
+      canvas.style.display="none";
+      userVideo.current.srcObject = canvas.captureStream(60);
       console.log("play game");
       setPlayingSolo(true)
     }

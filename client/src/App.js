@@ -10,6 +10,9 @@ import Box from '@material-ui/core/Box';
 import CheckIcon from '@material-ui/icons/Check';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 
+
+import Paper from '@material-ui/core/Paper';
+
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
@@ -75,20 +78,22 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App() {
   const [yourID, setYourID] = useState("");
+  const [yourVideoExists, setYourVideoExists] = useState(false)
 
   const [userInactive, setUserInactive] = useState(false)
 
   const [inviteCode, setInviteCode] = useState('') // Client creates an invite code
+  const [requestNewRoom, setRequestNewRoom] = useState(false);
   const [inputInviteCode, setInputInviteCode] = useState('') // Client writing down an invite code from someone else
 
   const [stream, setStream] = useState();
   const [playingSolo, setPlayingSolo] = useState(false);
 
-  const [incoming, setIncoming] = useState(false) // boolean indicating whether someone is attempting to join your room
-  const [incomingAccepted, setIncomingAccepted] = useState(false) // boolean indicating whether you accepted the user's request to join
+  const [incoming, setOther] = useState(false) // boolean indicating whether someone is attempting to join your room
+  const [incomingAccepted, setOtherAccepted] = useState(false) // boolean indicating whether you accepted the user's request to join
 
-  const [incomingUser, setIncomingUser] = useState(""); // ID of the incoming user
-  const [incomingUserSignal, setIncomingUserSignal] = useState(); // signal of incoming user
+  const [incomingUser, setOtherUser] = useState(""); // ID of the incoming user
+  const [incomingUserSignal, setOtherUserSignal] = useState(); // signal of incoming user
 
   const [youReady, setYouReady] = useState(false); // if you are ready to play
   const [otherReady, setOtherReady] = useState(false); // if other user is ready to play
@@ -103,6 +108,7 @@ export default function App() {
     if (inviteCode === '')
     {
       setInviteCode(shortid.generate());
+      setRequestNewRoom(true)
       // Send new room ID to server
     }
   }
@@ -130,7 +136,7 @@ export default function App() {
         trickle: false,
         stream: stream,
       });
-  
+
       peer.on("signal", data => {
         socket.current.emit("connectRoom", {roomToJoin: inputInviteCode, signalData: data, from:yourID})
       })
@@ -141,10 +147,11 @@ export default function App() {
         }
       })
   
-      socket.current.on("acceptIncoming", signal => {
-        setIncomingAccepted(true);
-        setIncoming(false);
-        peer.signal(signal);
+      socket.current.on("acceptIncoming", data => {
+        setOtherAccepted(true); // other user has accepted
+        setOther(false); // other user is not incoming anymore
+        setOtherUser(data.from)
+        peer.signal(data.signal);
         console.log("accepted user's request")
       })
     }
@@ -153,8 +160,8 @@ export default function App() {
   // You accepted the incoming user's request to join
   var acceptIncoming = () => {
     console.log("accepted join")
-    setIncomingAccepted(true);
-    setIncoming(false); // user accepted request, so close the incoming button
+    setOtherAccepted(true);
+    setOther(false); // user accepted request, so close the incoming button
 
     const peer = new Peer({
       initiator: false,
@@ -163,8 +170,8 @@ export default function App() {
     });
     peer.on("signal", data => {
       socket.current.emit("acceptIncoming", {signal: data, roomID: inviteCode, to: incomingUser, from: yourID})
-      setIncomingAccepted(true)
-      setIncoming(false)
+      setOtherAccepted(true)
+      setOther(false)
     })
     
     // Get stream
@@ -172,47 +179,54 @@ export default function App() {
       partnerVideo.current.srcObject = stream
     });
 
-    peer.signal(incomingUserSignal)
+    // peer.on("sendReady", data => {
+    //   setOtherReady(data.isReady);
+    // })
 
+    peer.signal(incomingUserSignal)
   }
 
   var handleReady = () => {
     setYouReady(!youReady);
   }
 
-
   // Load webcam on visit site
   useEffect( () => {
       // Call our fetch function below once the component mounts
 
       // Open webcam
-      socket.current = io.connect("/");
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-        setStream(stream);
-        if (userVideo.current) {
-          userVideo.current.srcObject = stream;
-        }
-      })
+      if (!yourVideoExists)
+      {
+        socket.current = io.connect("/");
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+          setStream(stream);
+          if (userVideo.current) {
+            userVideo.current.srcObject = stream;
+          }
+        })
+        setYourVideoExists(true);
+      }
+
 
       // Listen for receiving join request
       socket.current.on("hey", (data) => {
         if (!incomingAccepted)
         {
-          setIncoming(true);
-          setIncomingUser(data.from);
-          setIncomingUserSignal(data.signal);
+          setOther(true);
+          setOtherUser(data.from);
+          setOtherUserSignal(data.signal);
           console.log(`User ${data.from} is joining your room`)
         }
       })
-      // Make sure ID is set only once
-      if (yourID === "")
-      {
         // Get your user id
         socket.current.on("yourID", (id) => {
-          setYourID(id);
-          console.log('myID is', id)
+          // Make sure ID is set only once
+          if (yourID === "")
+          {
+            setYourID(id);
+            console.log('myID is', id)
+          }
         })
-      }
 
         socket.current.on("kick", (data) => {
           setUserInactive(true);
@@ -222,18 +236,23 @@ export default function App() {
 
       // Create a new room 
       // Problem, figure out a way to prevent webcam from loading again
-      if (inviteCode !== "") {
+      if (requestNewRoom) {
         console.log("invite code is", inviteCode)
         socket.current.emit("createRoom", {roomID: inviteCode})
+        setRequestNewRoom(false);
       }
-      socket.current.emit("sendReady", {isReady: youReady, to: incomingUser})
+    
+      socket.current.emit("sendReady", {isReady: youReady, to: incomingUser, from:yourID})
+      
+      console.log("sending ready ", youReady, "to ", incomingUser)
+      // Set ready feedback
+      socket.current.on("receiveReady", data => {
+        console.log("received ready on client")
+        setOtherReady(data.isReady);
+        })
 
-    // Set ready feedback
-    socket.current.on("receiveReady", data => {
-      console.log("received ready on client")
-      setOtherReady(data.isReady);
-      })
-    }, [inviteCode, youReady]);
+    
+      }, [inviteCode, youReady, otherReady]);
 
     let incomingUserNotification;
     if (incoming && !incomingAccepted)
@@ -241,7 +260,7 @@ export default function App() {
       incomingUserNotification = (
 
         <Grid item xs = {6}>
-        <Button onClick={acceptIncoming}>Accept Join Request</Button> 
+        <Button variant = "contained" color="secondary" onClick={acceptIncoming}>Accept Join Request</Button> 
         </Grid>
       )
     }
@@ -255,7 +274,8 @@ export default function App() {
     }
 
     let readyButtons;
-    if (incomingAccepted && (!youReady || !otherReady))
+    // if (incomingAccepted && (!youReady || !otherReady))
+    if (incomingAccepted)
     {
       readyButtons = (
         <ButtonGroup color="primary" aria-label="outlined primary button group">
@@ -286,6 +306,14 @@ export default function App() {
     userInactiveElement = (
       <Alert severity="error">You've been removed for inactivity. Please reload the page to play again.</Alert>
     )
+  }
+
+  let inviteCodeElement;
+  if (inviteCode !== '')
+  {
+    inviteCodeElement = (
+      <Button variant="contained" fullWidth={true} style={{textTransform: 'none'}} onClick={() => {navigator.clipboard.writeText(inviteCode)}}>Your Invite Code: {inviteCode}</Button> 
+    );
   }
 
   const classes = useStyles();
@@ -321,29 +349,28 @@ export default function App() {
       >
 
         <Grid container spacing = {3} 
-        style={{backgroundColor: "#333333", borderRadius: 10}}>
+        style={{backgroundColor: "#999999", borderRadius: 10}}>
           <Grid item xs={12}>
           {readyButtons}
           <Button onClick = {playSolo} variant="contained" color="primary" size="large" fullWidth={true}>Play Solo</Button>
           </Grid>
 
           <Grid item xs = {6}>
-            <TextField id="standard-basic" onChange={(event) => setInputInviteCode(event.target.value)} label="Invite Code" />
+            <TextField id="filled-basic" color="primary" onChange={(event) => setInputInviteCode(event.target.value)} fullWidth = {true} label="Invite Code" variant="filled" />
           </Grid>
 
-          <Grid item xs = {6}>
-          <Button variant="contained" onClick = {connectRoom} color="primary" fullWidth={true}>Join a Friend</Button>
-          {incomingUserNotification}
-
-          </Grid>
           <Grid item xs = {6}>
           <Button onClick = {generateInvite} variant="contained" color="primary" fullWidth={true}>Generate Invite Code</Button>
-          
-
           </Grid>
 
           <Grid item xs = {6}>
-          {inviteCode}
+          <Button variant="contained" onClick = {connectRoom} color="primary" fullWidth={true}>Join With Invite Code</Button>
+          {incomingUserNotification}
+          </Grid>
+
+
+          <Grid item xs = {6}>
+            {inviteCodeElement}
           </Grid>
         </Grid>
       </Box>

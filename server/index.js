@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 
 
-const io = socket(server);
+const io = socket(server, {pingTimeout: 3600000});
 
 const rooms = {};
 const port = process.env.PORT || 8080;
@@ -18,6 +18,7 @@ io.on('connection', socket => {
 
   // If user has disconnected, remove the room
   socket.on('disconnect', (reason) => {
+
     for (var room in rooms)
     {
       console.log("looping", room, "looking for", socket.id)
@@ -25,12 +26,12 @@ io.on('connection', socket => {
       if (rooms.hasOwnProperty(room) && rooms[room].includes(socket.id))
       {
         // Emit disconnect message to all clients in room
-        io.in(socket.id).emit('kick', {msg: "Someone disconnected"}) // This doesn't work
+        socket.emit('kick', {msg: "Someone disconnected"}) // This doesn't work
         delete rooms[room];
       }
     }
 
-    console.log(`${socket.id} has left`)
+    console.log(`${socket.id} has left because ${reason}`)
     console.log("rooms is now", rooms)
   });
 
@@ -49,12 +50,13 @@ io.on('connection', socket => {
 
     // Inviting user has accepted incoming user
     socket.on("acceptIncoming", (data) => {
-      io.to(data.to).emit('acceptIncoming', data.signal);
+      io.to(data.to).emit('acceptIncoming', {signal: data.signal, from: data.from});
       rooms[data.roomID].push(data.from) // Add other user ID to the room
     })
 
   // Either peers have changed their ready status
     socket.on("sendReady", (data) => {
+      console.log(`emit ready from ${data['from']}`)
       io.to(data.to).emit("receiveReady", {isReady: data.isReady})
     })
 });

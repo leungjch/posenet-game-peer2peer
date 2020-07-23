@@ -318,9 +318,6 @@ export default function App() {
 
       // reset ready buttons
       // TODO: hide UI/buttons
-      setYouReady(false);
-      setOtherReady(false)
-
 
 
     }

@@ -10,7 +10,6 @@ import Box from '@material-ui/core/Box';
 import CheckIcon from '@material-ui/icons/Check';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 
-
 import Paper from '@material-ui/core/Paper';
 
 import Button from '@material-ui/core/Button';
@@ -24,12 +23,16 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 import {sketch} from "./scripts/sketch.js"
 
+import {peerSketch} from "./scripts/peerSketch.js"
+
 import Grid from '@material-ui/core/Grid';
+
+var myp5;
+var otherp5;
 
 var p5 = require('p5');
 var shortid = require('shortid')
 // var mySketch = require('./scripts/sketch.js')
-
 
 const themeLight = createMuiTheme({
   palette: {
@@ -118,8 +121,8 @@ export default function App() {
   var playSolo = () => {
     if (!playingSolo)
     {
-      let myp5 = new p5(sketch);
-
+      myp5 = new p5(sketch);
+      myp5.isMulti = false;
       var canvas = document.getElementById('defaultCanvas0');
       canvas.style.display="none";
       userVideo.current.srcObject = canvas.captureStream(60);
@@ -184,10 +187,6 @@ export default function App() {
       partnerVideo.current.srcObject = stream
     });
 
-    // peer.on("sendReady", data => {
-    //   setOtherReady(data.isReady);
-    // })
-
     peer.signal(incomingUserSignal)
   }
 
@@ -211,7 +210,6 @@ export default function App() {
         })
         setYourVideoExists(true);
       }
-
 
       // Listen for receiving join request
       socket.current.on("hey", (data) => {
@@ -255,6 +253,10 @@ export default function App() {
         console.log("received ready on client")
         setOtherReady(data.isReady);
         })
+
+        // socket.current.on("receiveCanvas", (data) => {
+        //   console.log("received head ", data.myHead)
+        // })
     
       }, [inviteCode, youReady, otherReady]);
 
@@ -289,12 +291,42 @@ export default function App() {
         )
     }
 
+    // Create game if all players are ready
     if (youReady && otherReady && !playingMulti)  {
-      let myp5 = new p5(sketch);
+
+      // Create only one canvas
+      
+      if (!document.getElementById('defaultCanvas0')) {
+        myp5 = new p5(sketch);
+        myp5.isMulti = true;
+        myp5.to = incomingUser
+        myp5.from = yourID
+        myp5.socket = socket;
+        var canvas = document.getElementById('defaultCanvas0');
+        canvas.style.display="none";
+        userVideo.current.srcObject = canvas.captureStream(60);
+
+        otherp5 = new p5(peerSketch);
+        otherp5.isMulti = true;
+        otherp5.to = incomingUser
+        otherp5.from = yourID
+        otherp5.socket = socket;
+      }
+      console.log("making canvas")
+      // Get own p5 sketch and switch it with the webcam
+
+      // Emit own canvas data
+      // socket.current.emit("sendCanvas", {isReady: youReady, to: incomingUser, from:yourID})
+      // Get other sketch
+
       setPlayingMulti(true);
     }
-  // Conditionally render elements
+  // Send your canvas graphics
+  // Retrieve other player's graphics and draw them on the other canvas
   
+    // Conditionally render elements
+  
+  // Render user video
   let UserVideo;
   if (stream) {
     UserVideo = (
@@ -302,6 +334,7 @@ export default function App() {
     );
   }
 
+  // Render partner video
   let PartnerVideo;
   if (incomingAccepted)
   {
@@ -310,6 +343,7 @@ export default function App() {
     );
   }
 
+  // Conditioanlly render inactive alert
   let userInactiveElement;
   if (userInactive)
   {

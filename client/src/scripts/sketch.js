@@ -1,10 +1,13 @@
+
 import { Player } from "./classes/player"
 import { Enemy } from "./classes/enemy"
 import { QuadTree, Circle, Point, Rectangle } from "./classes/quadtree"
+import io from 'socket.io-client'
 
 var p5 = require('p5');
-
 var ml5 = require('ml5')
+
+
 
 var sketch = function(p) {
     let video;
@@ -34,6 +37,12 @@ var sketch = function(p) {
 
     let setupIntervalID;
     let playIntervalID;
+
+    let setupListeners = true;
+
+
+    var socket;
+
 
     function checkCollision(x1, x2, y1, y2, r1, r2)
     {
@@ -67,20 +76,26 @@ var sketch = function(p) {
     
 
     p.setup = function() {
+        video = p.createCapture(p.VIDEO);
+        video.hide();
+
         if (p.playerMode === "multi")
         {
             WIDTH = p.windowWidth/2;
-            HEIGHT = p.windowHeight;    
+            HEIGHT = p.windowHeight;  
+            // WIDTH = video.height;
+            // HEIGHT = video.width;
         }
         else
         {
             WIDTH = p.windowWidth/2;
             HEIGHT = p.windowHeight/2;
-        }
+            // WIDTH = video.width;
+            // HEIGHT = video.height;
 
+        }
         p.createCanvas(WIDTH, HEIGHT);
-        video = p.createCapture(p.VIDEO);
-        video.hide();
+
         player = new Player(WIDTH, HEIGHT);  
         var options = options = {
             imageScaleFactor: 0.1,
@@ -113,6 +128,25 @@ var sketch = function(p) {
         {
             enemies.push(new Enemy(icons, WIDTH, HEIGHT))
         }
+
+        // connect to host
+        // socket = io();
+        // socket.current = io.connect("/");
+
+        // socket.current.on("hii", (data) => {
+        //     console.log(`received hii from ${data.from}`)
+        // });
+
+
+
+        // socket.current.on("receiveCanvas", (data) => {
+        //     console.log("received head ", data.myHead)
+        //     });
+
+        // socket.current.emit("hello")
+
+
+        // socket.current.emit("hello")
 
         // Show start screen
     }
@@ -438,6 +472,25 @@ var sketch = function(p) {
             enemies.push(new Enemy(icons, WIDTH, HEIGHT))
         }
 
+        // Expose the graphics objects for access to App.js and eventually to be emitted to other user
+        p.myHead = player.head
+
+        // Set up interval to receive and send canvas data
+        if (setupListeners)
+        {
+            setInterval(() => {
+                p.socket.current.emit("sendCanvas", {myHead: player.head, hp: player.hp, to: p.to, from:p.from})
+                console.log("sending canvas to", p.to, "from", p.from)
+
+                // p.socket.current.on("receiveCanvas", (data) => {
+                //     console.log(`received specific message from ${data.from}`)
+                //     });
+            }, 5000);
+
+            setupListeners = false;
+            
+
+        }
     }
 }
 

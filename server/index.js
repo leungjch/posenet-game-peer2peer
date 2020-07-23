@@ -7,7 +7,6 @@ const socket = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
-
 const io = socket(server, {pingTimeout: 3600000});
 
 const rooms = {};
@@ -46,6 +45,7 @@ io.on('connection', socket => {
 
     socket.on("connectRoom", (data) => {
       io.to(rooms[data.roomToJoin]).emit('hey', {signal: data.signalData, from: data.from})
+      console.log("someone is connecting")
     })
 
     // Inviting user has accepted incoming user
@@ -59,6 +59,22 @@ io.on('connection', socket => {
       console.log(`emit ready from ${data['from']}`)
       io.to(data.to).emit("receiveReady", {isReady: data.isReady})
     })
+
+    socket.on("hello", () => {
+      console.log("received hello from sketch")
+    })
+
+    // Relay canvas data to other user
+  // Either peers have changed their ready status
+  socket.on("sendCanvas", (data) => {
+    // io.to(data.to).emit("hii", data)
+
+    // socket.emit("hii", data)
+    // console.log(`relay canvas data ${data.myHead} from ${data['from']} to ${data['to']}`)
+
+    io.to(data['to']).emit("receiveCanvas", data)
+  });
+
 });
 
 

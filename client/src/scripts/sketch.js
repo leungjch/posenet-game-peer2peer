@@ -76,6 +76,11 @@ var sketch = function(p) {
     
 
     p.setup = function() {
+
+        var userVideo = document.getElementById("user")
+        var userBounds = userVideo.getBoundingClientRect();
+
+
         video = p.createCapture(p.VIDEO);
         video.hide();
 
@@ -83,15 +88,20 @@ var sketch = function(p) {
         {
             WIDTH = p.windowWidth/2;
             HEIGHT = p.windowHeight;  
-            // WIDTH = video.height;
-            // HEIGHT = video.width;
+            WIDTH = userVideo.clientWidth;
+            HEIGHT = userVideo.clientHeight;
+            WIDTH = 640;
+            HEIGHT = 480;
         }
         else
         {
             WIDTH = p.windowWidth/2;
             HEIGHT = p.windowHeight/2;
-            // WIDTH = video.width;
-            // HEIGHT = video.height;
+            WIDTH = video.width;
+            HEIGHT = video.height;
+            WIDTH = 640;
+            HEIGHT = 480;
+
 
         }
         p.createCanvas(WIDTH, HEIGHT);
@@ -485,7 +495,7 @@ var sketch = function(p) {
                 // p.socket.current.on("receiveCanvas", (data) => {
                 //     console.log(`received specific message from ${data.from}`)
                 //     });
-            }, 5000);
+            }, 500);
 
             setupListeners = false;
             

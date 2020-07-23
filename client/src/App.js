@@ -302,15 +302,21 @@ export default function App() {
         myp5.to = incomingUser
         myp5.from = yourID
         myp5.socket = socket;
-        var canvas = document.getElementById('defaultCanvas0');
-        canvas.style.display="none";
-        userVideo.current.srcObject = canvas.captureStream(60);
+        var canvas0 = document.getElementById('defaultCanvas0');
+        canvas0.style.display="none";
+        userVideo.current.srcObject = canvas0.captureStream(60);
 
-        otherp5 = new p5(peerSketch);
+        otherp5 = new p5(peerSketch, 'partnerVideoContainer');
         otherp5.isMulti = true;
         otherp5.to = incomingUser
         otherp5.from = yourID
         otherp5.socket = socket;
+        
+        // otherp5.videoStream = partnerVideo.current.srcObject
+
+        // var canvas1 = document.getElementById('defaultCanvas1');
+        
+
       }
       console.log("making canvas")
       // Get own p5 sketch and switch it with the webcam
@@ -330,7 +336,7 @@ export default function App() {
   let UserVideo;
   if (stream) {
     UserVideo = (
-      <video playsInline muted ref={userVideo} autoPlay />
+      <video playsInline id="user" muted ref={userVideo} autoPlay />
     );
   }
 
@@ -339,7 +345,9 @@ export default function App() {
   if (incomingAccepted)
   {
     PartnerVideo = (
-      <video playsInline ref={partnerVideo} autoPlay />
+      <div id="partnerVideoContainer">
+          <video playsInline id="partner" style={{transform: 'rotateY(180deg)'}} ref={partnerVideo} autoPlay />
+      </div>
     );
   }
 

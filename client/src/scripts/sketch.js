@@ -30,6 +30,8 @@ var sketch = function(p) {
     let setupTime = 5 // 5 seconds to prepare before game starts
     let playTime = 60 // 60 seconds to play game
 
+    let triggerPlay = true; // boolean that is immediately set the false when both players are both ready
+
     let doneSetup = false;
     let donePlay = false;
     let setupCountdownStarted = false; // user hasn't clicked the start button
@@ -139,26 +141,6 @@ var sketch = function(p) {
             enemies.push(new Enemy(icons, WIDTH, HEIGHT))
         }
 
-        // connect to host
-        // socket = io();
-        // socket.current = io.connect("/");
-
-        // socket.current.on("hii", (data) => {
-        //     console.log(`received hii from ${data.from}`)
-        // });
-
-
-
-        // socket.current.on("receiveCanvas", (data) => {
-        //     console.log("received head ", data.myHead)
-        //     });
-
-        // socket.current.emit("hello")
-
-
-        // socket.current.emit("hello")
-
-        // Show start screen
     }
 
     function modelLoaded() {
@@ -208,10 +190,11 @@ var sketch = function(p) {
                 playCountdownStarted = true
 
             }
-            else if (p.mouseIsPressed && setupCountdownStarted === false)
+            else if (triggerPlay && setupCountdownStarted === false)
             {
                 setupIntervalID = setInterval(setupCountDownDec, 1000);
                 setupCountdownStarted = true
+                triggerPlay = false;
             }
             else if (setupCountdownStarted)
             {

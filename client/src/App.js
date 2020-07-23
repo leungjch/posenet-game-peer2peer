@@ -311,21 +311,18 @@ export default function App() {
         otherp5.to = incomingUser
         otherp5.from = yourID
         otherp5.socket = socket;
-        
-        // otherp5.videoStream = partnerVideo.current.srcObject
-
-        // var canvas1 = document.getElementById('defaultCanvas1');
-        
-
-      }
+        }
       console.log("making canvas")
-      // Get own p5 sketch and switch it with the webcam
-
-      // Emit own canvas data
-      // socket.current.emit("sendCanvas", {isReady: youReady, to: incomingUser, from:yourID})
-      // Get other sketch
 
       setPlayingMulti(true);
+
+      // reset ready buttons
+      // TODO: hide UI/buttons
+      setYouReady(false);
+      setOtherReady(false)
+
+
+
     }
   // Send your canvas graphics
   // Retrieve other player's graphics and draw them on the other canvas

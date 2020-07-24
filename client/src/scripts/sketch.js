@@ -461,17 +461,16 @@ var sketch = function(p) {
         // Set up interval to receive and send canvas data
         if (setupListeners)
         {
-            const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
             setInterval(() => {
-                p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right,
-                                                    enemies:cleanEnemies,
+                // const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
+                p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right, playerHP: player.hp,
                                                     to: p.to, from:p.from})
                 // console.log("sending canvas to", p.to, "from", p.from)
 
                 // p.socket.current.on("receiveCanvas", (data) => {
                 //     console.log(`received specific message from ${data.from}`)
                 //     });
-            }, 17);
+            }, 50);
             setupListeners = false;
         }
     }

@@ -318,8 +318,6 @@ export default function App() {
 
       // reset ready buttons
       // TODO: hide UI/buttons
-
-
     }
   // Send your canvas graphics
   // Retrieve other player's graphics and draw them on the other canvas
@@ -362,9 +360,7 @@ export default function App() {
     );
   }
 
-
   const classes = useStyles();
-
   return (
     
     <MuiThemeProvider theme = {themeDark}>

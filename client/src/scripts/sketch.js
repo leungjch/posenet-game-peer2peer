@@ -165,7 +165,7 @@ var sketch = function(p) {
         if (doneSetup && !donePlay)
         {
             // Show timer
-            p.textSize(200)
+            p.textSize(WIDTH/3)
             p.text(playTime, WIDTH/2, HEIGHT/4)
             play();
 
@@ -196,6 +196,8 @@ var sketch = function(p) {
             else if (setupCountdownStarted)
             {
                 // Show setup countdown
+                p.textSize(WIDTH/4);
+
                 p.text(setupTime, WIDTH/2, HEIGHT/2)    
             }
             else
@@ -205,7 +207,7 @@ var sketch = function(p) {
                 p.stroke(255)
                 p.strokeWeight(5)
 
-                p.textSize(200)
+                p.textSize(WIDTH/4)
                 p.fill(255)
                 p.noStroke()
                 p.text("Click to start!", WIDTH/2, HEIGHT/2)    
@@ -221,12 +223,11 @@ var sketch = function(p) {
             p.stroke(255);
             p.strokeWeight(5);
 
-            p.textSize(200);
+            p.textSize(WIDTH/16);
             p.fill(0);
             p.noStroke();
             p.text("Your score: " + Math.ceil(player.hp), WIDTH/2, HEIGHT/2);
             p.text("Play again?", WIDTH/2, 3*HEIGHT/4);
-
 
             // clear countdown and reset countdown values
             clearInterval(playIntervalID); 
@@ -234,7 +235,6 @@ var sketch = function(p) {
             setupTime = 5;
             setupCountdownStarted = false;
             playCountdownStarted = false
-
 
             // Start game again if mouse clicked
             if (p.mouseIsPressed)
@@ -346,7 +346,7 @@ var sketch = function(p) {
 
         // Draw HP
         p.fill(0,0,0)
-        p.textSize(100)
+        p.textSize(WIDTH/6)
         p.text(Math.floor(player.hp), player.head.x-player.head.r/2, player.head.y-player.head.r/2)
 
         // Draw wrists
@@ -446,25 +446,28 @@ var sketch = function(p) {
                 // enemies.splice(enemies.indexOf(point.entity),1)
                 player.hp += point.entity.circle.r
 
-                if (point.entity.circle.r < 50)
+                if (point.entity.circle.r < 10)
                 {
                     enemies.splice(enemies.indexOf(point.entity),1)
                 }
             }
         }
         // qtree.show();    
-        if (Math.random()>0.8 && enemies.length < 1000)
+        if (Math.random()>0.5 && enemies.length < 1000)
         {
             enemies.push(new Enemy(icons, WIDTH, HEIGHT))
         }
 
         // Set up interval to receive and send canvas data
-        if (setupListeners)
+        if (setupListeners && p.isMulti)
         {
             setInterval(() => {
-                // const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
+                const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
                 p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right, playerHP: player.hp,
-                                                    to: p.to, from:p.from})
+                                                    enemies: cleanEnemies, to: p.to, from:p.from})
+
+
+
                 // console.log("sending canvas to", p.to, "from", p.from)
 
                 // p.socket.current.on("receiveCanvas", (data) => {

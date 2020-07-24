@@ -127,6 +127,7 @@ export default function App() {
       canvas.style.display="none";
       userVideo.current.srcObject = canvas.captureStream(60);
       console.log("play game");
+      
       setPlayingSolo(true)
     }
     else
@@ -302,6 +303,7 @@ export default function App() {
         myp5.to = incomingUser
         myp5.from = yourID
         myp5.socket = socket;
+        myp5.io = io;
         var canvas0 = document.getElementById('defaultCanvas0');
         canvas0.style.display="none";
         userVideo.current.srcObject = canvas0.captureStream(60);

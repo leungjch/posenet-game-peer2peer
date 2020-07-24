@@ -41,7 +41,7 @@ var peerSketch = function(p) {
             peerVideo = document.getElementById("partner")
             peerBounds = peerVideo.getBoundingClientRect();
     
-            setInterval(() => {
+            // setInterval(() => {
                 p.socket.current.on("receiveCanvas", (data) => {
                     // console.log(`peerCanvas: received specific message from ${data.from}`)
                     // console.log("otherScore is", data.hp)
@@ -55,43 +55,40 @@ var peerSketch = function(p) {
                     // p.ellipse(data.playerHead.x, data.playerHead.y, data.playerHead.r);
                     // Show other player
 
-                    // Draw HP
-                    p.fill(0,0,0)
-                    p.textSize(100)
-                    p.text(Math.floor(data.playerHP), data.playerHead.x-data.playerHead.r/2, data.playerHead.y-data.playerHead.r/2)
 
-                    
                     p.image(icons['cat'], data.playerHead.x-data.playerHead.r/2, data.playerHead.y-data.playerHead.r/2, data.playerHead.r, data.playerHead.r)
 
-
                     p.image(icons['fist'], data.playerLeft.x-data.playerLeft.r/2, data.playerLeft.y-data.playerLeft.r/2, data.playerLeft.r, data.playerLeft.r)
-
                     p.image(icons['fist'], data.playerRight.x-data.playerRight.r/2, data.playerRight.y-data.playerRight.r/2, data.playerRight.r, data.playerRight.r)
             
 
-                    // for (let enemy of data.enemies)
-                    // {
-                    //     var enemyIcon;
-                    //     if (enemy.type === "roamer")
-                    //     {
-                    //         enemyIcon = icons['alien']
-                    //     }
-                    //     else if (enemy.type === "seeker")
-                    //     {
-                    //         enemyIcon = icons['evil']
-                    //     }
-                    //     else if (enemy.type === "robot")
-                    //     {
-                    //         enemyIcon = icons['robot']
-                    //     }
+                    for (let enemy of data.enemies)
+                    {
+                        var enemyIcon;
+                        if (enemy.type === "roamer")
+                        {
+                            enemyIcon = icons['alien']
+                        }
+                        else if (enemy.type === "seeker")
+                        {
+                            enemyIcon = icons['evil']
+                        }
+                        else if (enemy.type === "robot")
+                        {
+                            enemyIcon = icons['robot']
+                        }
 
-                    //     p.image(enemyIcon, enemy.circle.x-enemy.circle.r/2, enemy.circle.y-enemy.circle.r/2, enemy.circle.r, enemy.circle.r)
+                        p.image(enemyIcon, enemy.circle.x-enemy.circle.r/2, enemy.circle.y-enemy.circle.r/2, enemy.circle.r, enemy.circle.r)
 
-                        
-                    // }
+                        // Draw HP
+                        p.fill(0,0,0)
+                        p.textSize(100)
+                        p.text(Math.floor(data.playerHP), data.playerHead.x-data.playerHead.r/2, data.playerHead.y-data.playerHead.r/2)
+                
+                    }
 
                     });
-            }, 50);
+            // }, 1000);
 
 
             p.resizeCanvas(peerVideo.clientWidth, peerVideo.clientHeight)

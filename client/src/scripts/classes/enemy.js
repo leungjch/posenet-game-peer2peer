@@ -1,4 +1,5 @@
 import { QuadTree, Circle, Point, Rectangle } from "./quadtree"
+import { minHeight } from "@material-ui/system";
 
 
 function choose(choices) {
@@ -37,11 +38,14 @@ export class Enemy {
 
         }
 
+        let minDims = Math.min(WIDTH,HEIGHT);
+
+
         // Geometry
         let randY = Math.floor(Math.random()*HEIGHT)
         let randX = Math.floor(Math.random()*WIDTH)
-        let randR = Math.ceil(Math.random()*150)+16
-        this.speed = Math.random()*10
+        let randR = Math.ceil(Math.random()*minDims/10)+16
+        this.speed = Math.random()*4
 
         this.circle = new Circle(randX, randY, randR);
     }

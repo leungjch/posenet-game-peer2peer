@@ -29,10 +29,9 @@ io.on('connection', socket => {
         delete rooms[room];
       }
     }
-
     console.log(`${socket.id} has left because ${reason}`)
     console.log("rooms is now", rooms)
-  });
+    });
 
     // Create room ID
     socket.on("createRoom", (data) => {
@@ -54,7 +53,7 @@ io.on('connection', socket => {
       rooms[data.roomID].push(data.from) // Add other user ID to the room
     })
 
-  // Either peers have changed their ready status
+    // Either peers have changed their ready status
     socket.on("sendReady", (data) => {
       console.log(`emit ready from ${data['from']}`)
       io.to(data.to).emit("receiveReady", {isReady: data.isReady})
@@ -65,15 +64,10 @@ io.on('connection', socket => {
     })
 
     // Relay canvas data to other user
-  // Either peers have changed their ready status
-  socket.on("sendCanvas", (data) => {
-    // io.to(data.to).emit("hii", data)
-
-    // socket.emit("hii", data)
-    // console.log(`relay canvas data ${data.myHead} from ${data['from']} to ${data['to']}`)
-
-    io.to(data['to']).emit("receiveCanvas", data)
-  });
+    // Either peers have changed their ready status
+    socket.on("sendCanvas", (data) => {
+      io.to(data['to']).emit("receiveCanvas", data)
+    });
 
 });
 

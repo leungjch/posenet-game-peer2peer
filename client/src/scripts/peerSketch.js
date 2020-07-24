@@ -7,6 +7,7 @@ var peerSketch = function(p) {
     var canvas;
     var peerVideo;
     var peerBounds;
+    var icons;
     var setupDimsOnce = true
     // connect to host
 
@@ -22,8 +23,14 @@ var peerSketch = function(p) {
         console.log("peer dims is", peerBounds)
         canvas.position(peerBounds.left,peerBounds.top);
         canvas.style('z-index', '1');
-        // p.background(100)
-        // console.log('hi this is peer')
+
+        icons = {  'grin': p.loadImage('./icons/grinning_msft.png'),
+                    'fist': p.loadImage('./icons/fist_msft.png'),
+                    'evil': p.loadImage('./icons/evil_msft.png'),
+                    'alien': p.loadImage('./icons/alien_msft.png'),
+                    'pain': p.loadImage('./icons/pain_msft.png'),
+                    'robot': p.loadImage('./icons/robot_msft.png')
+        }
     }
 
     p.draw = function() {
@@ -40,12 +47,37 @@ var peerSketch = function(p) {
                     // console.log(`peerCanvas: received specific message from ${data.from}`)
                     // console.log("otherScore is", data.hp)
                     p.clear();
+                    
+                    // Draw background
                     p.background('rgba(255,255,255, 0.50)')
                     p.fill(255, 255, 0);
-                    p.ellipse(data.myHead.x, data.myHead.y, data.myHead.r);
-            
+
+                    // Draw player
+                    p.ellipse(data.playerHead.x, data.playerHead.y, data.playerHead.r);
+                    
+                    for (let enemy of data.enemies)
+                    {
+                        var enemyIcon;
+                        if (enemy.type === "roamer")
+                        {
+                            enemyIcon = icons['alien']
+                        }
+                        else if (enemy.type === "seeker")
+                        {
+                            enemyIcon = icons['evil']
+                        }
+                        else if (enemy.type === "robot")
+                        {
+                            enemyIcon = icons['robot']
+                        }
+
+                        p.image(enemyIcon, enemy.circle.x-enemy.circle.r/2, enemy.circle.y-enemy.circle.r/2, enemy.circle.r, enemy.circle.r)
+
+                        
+                    }
+
                     });
-            }, 500);
+            }, 17);
 
 
             p.resizeCanvas(peerVideo.clientWidth, peerVideo.clientHeight)

@@ -7,8 +7,6 @@ import io from 'socket.io-client'
 var p5 = require('p5');
 var ml5 = require('ml5')
 
-
-
 var sketch = function(p) {
     let video;
     let poseNet;
@@ -123,7 +121,6 @@ var sketch = function(p) {
         // frameRate(10)
 
         poseNet = ml5.poseNet(video, modelLoaded, options);
-            
         poseNet.on('pose', gotPoses);
 
         scaleWidth = WIDTH/video.width;
@@ -136,15 +133,15 @@ var sketch = function(p) {
                     'pain': p.loadImage('./icons/pain_msft.png'),
                     'robot': p.loadImage('./icons/robot_msft.png')
         }
+
         for (var i = 0; i < 10; i++)
         {
             enemies.push(new Enemy(icons, WIDTH, HEIGHT))
         }
-
     }
 
     function modelLoaded() {
-    console.log('poseNet ready');
+        console.log('poseNet ready');
     }
 
     p.draw = function() {
@@ -250,9 +247,7 @@ var sketch = function(p) {
 
                 donePlay = false
             }
-
         }
-        
     }
 
     function setupCountDownDec()
@@ -455,34 +450,29 @@ var sketch = function(p) {
                 {
                     enemies.splice(enemies.indexOf(point.entity),1)
                 }
-
             }
         }
         // qtree.show();    
-
         if (Math.random()>0.8 && enemies.length < 1000)
         {
             enemies.push(new Enemy(icons, WIDTH, HEIGHT))
         }
 
-        // Expose the graphics objects for access to App.js and eventually to be emitted to other user
-        p.myHead = player.head
-
         // Set up interval to receive and send canvas data
         if (setupListeners)
         {
+            const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
             setInterval(() => {
-                p.socket.current.emit("sendCanvas", {myHead: player.head, hp: player.hp, to: p.to, from:p.from})
-                console.log("sending canvas to", p.to, "from", p.from)
+                p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right,
+                                                    enemies:cleanEnemies,
+                                                    to: p.to, from:p.from})
+                // console.log("sending canvas to", p.to, "from", p.from)
 
                 // p.socket.current.on("receiveCanvas", (data) => {
                 //     console.log(`received specific message from ${data.from}`)
                 //     });
-            }, 500);
-
+            }, 17);
             setupListeners = false;
-            
-
         }
     }
 }

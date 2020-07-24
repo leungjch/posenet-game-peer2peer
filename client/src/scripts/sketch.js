@@ -466,14 +466,12 @@ var sketch = function(p) {
                 p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right, playerHP: player.hp,
                                                     enemies: cleanEnemies, to: p.to, from:p.from})
 
-
-
                 // console.log("sending canvas to", p.to, "from", p.from)
 
                 // p.socket.current.on("receiveCanvas", (data) => {
                 //     console.log(`received specific message from ${data.from}`)
                 //     });
-            }, 50);
+            }, 30);
             setupListeners = false;
         }
     }

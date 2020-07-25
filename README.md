@@ -23,9 +23,9 @@ Use your hands to smash down an onslaught of emojis coming for your head, and ai
 ## Technical details
 
 - Websocket server run through **Node.js**, specifically **Express**. The server listens for connections and disconnections, requests to connect to another peer, and relays game data to other peers.
-- Smooth video calling between two peers is achieved through **simple-peer**, an WebRTC Javascript library.
-- Frontend / client created using **React** webapp and **Material-UI** for styling.
+- Smooth video calling between two peers is achieved through **simple-peer**, a WebRTC Javascript library.
+- Frontend / client created using **React** app and **Material-UI** for styling.
 - Canvas graphics and game handled through **p5.js**.
 - Fast and simple PoseNet implementation using **ml5.js**.
-- Implemented efficient collision handling through a **quadtree data structure** which improves time complexity from O(n&2) to O(nlogn). 
-- Project deployed on Heroku. 
+- Implemented efficient collision handling through a **quadtree data structure** which improves time complexity from O(n^2) to O(nlogn). 
+- Project deployed on **Heroku**. 

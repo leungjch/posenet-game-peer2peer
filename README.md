@@ -1,4 +1,4 @@
-# Emoji Ninja - a Peer2Peer game leveraging TensorFlow's PoseNet
+# Emoji Ninja - a Peer2Peer fitness game leveraging TensorFlow's PoseNet
 
 Use your hands to smash down an onslaught of emojis coming for your head, and aim for the highest possible score in a 60-second time limit. The damage you inflict is proportional to how fast you are moving. Play solo or securely with a friend (made possible through WebRTC peer-to-peer technology). No Kinect required!
 

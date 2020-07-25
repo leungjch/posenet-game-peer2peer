@@ -14,6 +14,8 @@ import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 
 import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 
@@ -49,7 +51,7 @@ const themeDark = createMuiTheme({
       default: "#222222"
     },
     text: {
-      primary: "#ffffff"
+      primary: "#000000"
     }
   }
 });
@@ -83,6 +85,10 @@ const useStyles = makeStyles((theme) => ({
 export default function App() {
   const [yourID, setYourID] = useState("");
   const [yourVideoExists, setYourVideoExists] = useState(false)
+  const [partnerExists, setPartnerExists] = useState(false)
+
+  const [yourScore, setYourScore] = useState('waiting');
+  const [peerScore, setPeerScore] = useState('waiting');
 
   const [userInactive, setUserInactive] = useState(false)
 
@@ -157,6 +163,7 @@ export default function App() {
       peer.on("stream", stream => {
         if (partnerVideo.current) {
           partnerVideo.current.srcObject = stream;
+          setPartnerExists(true);
         }
       })
   
@@ -191,6 +198,7 @@ export default function App() {
     peer.on("stream", stream => {
       partnerVideo.current.srcObject = stream
     });
+    setPartnerExists(true);
 
     peer.signal(incomingUserSignal)
   }
@@ -261,16 +269,20 @@ export default function App() {
 
       socket.current.on("receiveYourScore", (data) => {
         console.log("received my score ", data.finalScore)
+        setYourScore(data.finalScore);
+
+        // Get normal webcam stream back
         if (userVideo.current) {
           userVideo.current.srcObject = stream;
         }
+
         setYouDone(true);
         setYouReady(false);
         setOtherReady(false);
         setPlaying(false);
       })
       socket.current.on("receivePeerScore", (data) => {
-
+        setPeerScore(data.finalScore);
         console.log("received peer score ", data.finalScore)
       });
       }, [inviteCode, youReady, otherReady]);
@@ -299,10 +311,23 @@ export default function App() {
     if (incomingAccepted)
     {
       readyButtons = (
-        <ButtonGroup color="primary" aria-label="outlined primary button group">
-            <Button onClick={handleReady}>{youReady ? "Click to Unready" : "Click to Ready"} </Button>
-            <Button >{otherReady ? "Friend Ready" : "Friend Not Ready"} </Button>
-        </ButtonGroup>
+        <Box justifyContent="center" style={{textAlign:'center'}}>
+
+          <ButtonGroup size="large" color="primary" aria-label="outlined primary button group">
+              <Button onClick={handleReady}>{youReady ? "Click to Unready" : "Click to Ready"} </Button>
+              <Button >{otherReady ? "Friend Ready" : "Friend Not Ready"} </Button>
+          </ButtonGroup>
+
+          <Grow in={youDone}>
+            <Card>
+              <Typography> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Win! 🎉" : "You Lost! 😢"} </Typography>
+              <Typography> Your final score: {Math.ceil(yourScore)} </Typography>
+              <Typography> Friend's score: {Math.ceil(peerScore)} </Typography>
+            </Card>
+          </Grow>
+
+
+        </Box>
         )
     }
 
@@ -312,22 +337,21 @@ export default function App() {
       // Create only one canvas
       
       if (!document.getElementById('defaultCanvas0')) {
-        myp5 = new p5(sketch);
-        myp5.isMulti = true;
-        myp5.to = incomingUser
-        myp5.from = yourID
-        myp5.socket = socket;
-        myp5.io = io;
-        var canvas0 = document.getElementById('defaultCanvas0');
-        canvas0.style.display="none";
-        userVideo.current.srcObject = canvas0.captureStream(60);
+          myp5 = new p5(sketch);
+          myp5.isMulti = true;
+          myp5.to = incomingUser
+          myp5.from = yourID
+          myp5.socket = socket;
+          myp5.io = io;
+          var canvas0 = document.getElementById('defaultCanvas0');
+          canvas0.style.display="none";
+          userVideo.current.srcObject = canvas0.captureStream(60);
 
-        otherp5 = new p5(peerSketch, 'partnerVideoContainer');
-        otherp5.isMulti = true;
-        otherp5.to = incomingUser
-        otherp5.from = yourID
-        otherp5.socket = socket;
-        
+          otherp5 = new p5(peerSketch, 'partnerVideoContainer');
+          otherp5.isMulti = true;
+          otherp5.to = incomingUser
+          otherp5.from = yourID
+          otherp5.socket = socket;
         }
       console.log("making canvas")
 
@@ -346,7 +370,7 @@ export default function App() {
   let UserVideo;
   if (stream) {
     UserVideo = (
-      <video playsInline id="user" style = {{textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '10px', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} muted ref={userVideo} autoPlay />
+      <video playsInline id="user" style = {{textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '2%', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} muted ref={userVideo} autoPlay />
     );
   }
 
@@ -357,7 +381,7 @@ export default function App() {
     PartnerVideo = (
     <Grid item xs={12} sm={6}>
       <div id="partnerVideoContainer">
-          <video playsInline id="partner" style={{transform: 'rotateY(180deg)', textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '10px', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} ref={partnerVideo} autoPlay />
+          <video playsInline id="partner" style={{transform: 'rotateY(180deg)', textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '2%', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} ref={partnerVideo} autoPlay />
       </div>
       </Grid>
     );
@@ -386,6 +410,7 @@ export default function App() {
       <CssBaseline />
     <div className={classes.root}>
       {userInactiveElement}
+      <Grow in={yourVideoExists}>
       <Grid
       container
       spacing={0}
@@ -396,12 +421,14 @@ export default function App() {
           <Grid item xs={12} sm={6}>
             {UserVideo}
           </Grid> 
-
           {PartnerVideo}
 
-
         </Grid>
-      <Grow in={!playing}>
+      </Grow>
+
+      {readyButtons}
+
+      <Grow in={!partnerExists && !playingSolo}>
 
       <Box
       justifyContent="center"
@@ -413,7 +440,6 @@ export default function App() {
         <Grid container spacing = {3} 
         style={{backgroundColor: "#999999", borderRadius: 10}}>
           <Grid item xs={12}>
-          {readyButtons}
           <Button onClick = {playSolo} variant="contained" color="primary" size="large" fullWidth={true}>Play Solo</Button>
           </Grid>
 

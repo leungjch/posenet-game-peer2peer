@@ -9,6 +9,7 @@ import './App.css';
 import Box from '@material-ui/core/Box';
 import CheckIcon from '@material-ui/icons/Check';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import Grow from '@material-ui/core/Grow';
 
 import Paper from '@material-ui/core/Paper';
 
@@ -92,6 +93,7 @@ export default function App() {
   const [stream, setStream] = useState();
   const [playingSolo, setPlayingSolo] = useState(false);
   const [playingMulti, setPlayingMulti] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   const [incoming, setOther] = useState(false) // boolean indicating whether someone is attempting to join your room
   const [incomingAccepted, setOtherAccepted] = useState(false) // boolean indicating whether you accepted the user's request to join
@@ -101,8 +103,6 @@ export default function App() {
 
   const [youReady, setYouReady] = useState(false); // if you are ready to play
   const [otherReady, setOtherReady] = useState(false); // if other user is ready to play
-
-
 
   const socket = useRef();
   const userVideo = useRef();
@@ -128,7 +128,8 @@ export default function App() {
       userVideo.current.srcObject = canvas.captureStream(60);
       console.log("play game");
       
-      setPlayingSolo(true)
+      setPlayingSolo(true);
+      setPlaying(true);
     }
     else
     {
@@ -313,10 +314,12 @@ export default function App() {
         otherp5.to = incomingUser
         otherp5.from = yourID
         otherp5.socket = socket;
+        
         }
       console.log("making canvas")
 
       setPlayingMulti(true);
+      setPlaying(true);
 
       // reset ready buttons
       // TODO: hide UI/buttons
@@ -330,7 +333,7 @@ export default function App() {
   let UserVideo;
   if (stream) {
     UserVideo = (
-      <video playsInline id="user" muted ref={userVideo} autoPlay />
+      <video playsInline id="user" style = {{textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '10px', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} muted ref={userVideo} autoPlay />
     );
   }
 
@@ -339,13 +342,15 @@ export default function App() {
   if (incomingAccepted)
   {
     PartnerVideo = (
+    <Grid item xs={12} sm={6}>
       <div id="partnerVideoContainer">
-          <video playsInline id="partner" style={{transform: 'rotateY(180deg)'}} ref={partnerVideo} autoPlay />
+          <video playsInline id="partner" style={{transform: 'rotateY(180deg)', textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '10px', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} ref={partnerVideo} autoPlay />
       </div>
+      </Grid>
     );
   }
 
-  // Conditioanlly render inactive alert
+  // Conditionally render inactive alert
   let userInactiveElement;
   if (userInactive)
   {
@@ -364,27 +369,26 @@ export default function App() {
 
   const classes = useStyles();
   return (
-    
     <MuiThemeProvider theme = {themeDark}>
       <CssBaseline />
     <div className={classes.root}>
       {userInactiveElement}
-      <Box
-      justifyContent="center"
+      <Grid
+      container
+      spacing={0}
+      padding={10}
       justify="center"
-      width="50%"
-      m="auto"
+      style={{ minHeight: '60vh', maxWidth: '100%' }}
       >
-        <Grid container spacing = {3}>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             {UserVideo}
           </Grid> 
-          <Grid item xs={6}>
+
           {PartnerVideo}
-          </Grid>
+
 
         </Grid>
-      </Box>
+      <Grow in={!playing}>
 
       <Box
       justifyContent="center"
@@ -419,7 +423,7 @@ export default function App() {
           </Grid>
         </Grid>
       </Box>
-
+      </Grow>
     </div>
     </MuiThemeProvider>
   );

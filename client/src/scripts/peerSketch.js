@@ -8,6 +8,8 @@ var peerSketch = function(p) {
     var peerVideo;
     var peerBounds;
     var icons;
+    var WIDTH; 
+    var HEIGHT;
     var setupDimsOnce = true
     // connect to host
 
@@ -18,8 +20,10 @@ var peerSketch = function(p) {
         peerVideo = document.getElementById("partner")
         peerBounds = peerVideo.getBoundingClientRect();
 
+        WIDTH = peerVideo.clientWidth;
+        HEIGHT = peerVideo.clientHeight;
 
-        canvas = p.createCanvas(peerVideo.clientWidth,peerVideo.clientHeight);
+        canvas = p.createCanvas(WIDTH,HEIGHT);
         console.log("peer dims is", peerBounds)
         canvas.position(peerBounds.left,peerBounds.top);
         canvas.style('z-index', '1');
@@ -55,6 +59,19 @@ var peerSketch = function(p) {
                     // p.ellipse(data.playerHead.x, data.playerHead.y, data.playerHead.r);
                     // Show other player
 
+                    // Scale the normalized player coordinates
+                    data.playerHead.x = data.playerHead.x / data.originalWidth * WIDTH;
+                    data.playerHead.y = data.playerHead.y / data.originalHeight * HEIGHT;
+                    data.playerHead.r = data.playerHead.r / data.originalWidth * WIDTH;
+    
+                    data.playerLeft.x = data.playerLeft.x / data.originalWidth * WIDTH;
+                    data.playerLeft.y = data.playerLeft.y / data.originalHeight * HEIGHT;
+                    data.playerLeft.r = data.playerLeft.r / data.originalWidth * WIDTH;
+    
+                    data.playerRight.x = data.playerRight.x/ data.originalWidth * WIDTH;
+                    data.playerRight.y = data.playerRight.y/ data.originalHeight * HEIGHT;
+                    data.playerRight.r = data.playerRight.r/ data.originalWidth * WIDTH;
+
 
                     p.image(icons['cat'], data.playerHead.x-data.playerHead.r/2, data.playerHead.y-data.playerHead.r/2, data.playerHead.r, data.playerHead.r)
 
@@ -77,6 +94,11 @@ var peerSketch = function(p) {
                         {
                             enemyIcon = icons['robot']
                         }
+                        
+                        // expand out normalized coordinates
+                        enemy.circle.x = enemy.circle.x / data.originalWidth * WIDTH
+                        enemy.circle.y = enemy.circle.y / data.originalHeight *HEIGHT
+                        enemy.circle.r = enemy.circle.r / data.originalWidth * WIDTH
 
                         p.image(enemyIcon, enemy.circle.x-enemy.circle.r/2, enemy.circle.y-enemy.circle.r/2, enemy.circle.r, enemy.circle.r)
 
@@ -86,7 +108,6 @@ var peerSketch = function(p) {
                         p.text(Math.floor(data.playerHP), data.playerHead.x-data.playerHead.r/2, data.playerHead.y-data.playerHead.r/2)
                 
                     }
-
                     });
             // }, 1000);
 

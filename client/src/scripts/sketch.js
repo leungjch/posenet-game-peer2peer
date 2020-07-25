@@ -32,6 +32,7 @@ var sketch = function(p) {
 
     let doneSetup = false;
     let donePlay = false;
+    let emitScore = true; // boolean for sending score to server once
     let setupCountdownStarted = false; // user hasn't clicked the start button
     let playCountdownStarted = false; // user hasn't clicked the start button
 
@@ -40,6 +41,7 @@ var sketch = function(p) {
 
     let setupListeners = true;
 
+    let myFont;
 
     var socket;
 
@@ -73,7 +75,6 @@ var sketch = function(p) {
             // eyelY = lerp(eyelY, eY, 0.5);
         }
     }
-    
 
     p.setup = function() {
 
@@ -82,6 +83,9 @@ var sketch = function(p) {
 
 
         video = p.createCapture(p.VIDEO);
+        var scale = video.width/video.height;
+
+
         video.hide();
 
         if (p.playerMode === "multi")
@@ -91,18 +95,16 @@ var sketch = function(p) {
             WIDTH = userVideo.clientWidth;
             HEIGHT = userVideo.clientHeight;
             WIDTH = 640;
-            HEIGHT = 480;
+            // HEIGHT = 480;
         }
         else
         {
-            WIDTH = p.windowWidth/2;
-            HEIGHT = p.windowHeight/2;
-            WIDTH = video.width;
-            HEIGHT = video.height;
-            WIDTH = 640;
-            HEIGHT = 480;
-
-
+            WIDTH = p.windowWidth;
+            HEIGHT = p.windowHeight;
+            WIDTH = p.windowHeight * scale * 0.8;
+            HEIGHT = p.windowHeight * 0.8 ;
+            // WIDTH = 640;
+            // HEIGHT = 480;
         }
         p.createCanvas(WIDTH, HEIGHT);
 
@@ -166,7 +168,7 @@ var sketch = function(p) {
         {
             // Show timer
             p.textSize(WIDTH/3)
-            p.text(playTime, WIDTH/2, HEIGHT/4)
+            p.text(playTime, WIDTH/2, HEIGHT/2)
             play();
 
             if (playTime <= 0)
@@ -226,7 +228,10 @@ var sketch = function(p) {
             p.textSize(WIDTH/16);
             p.fill(0);
             p.noStroke();
+            
+            
             p.text("Your score: " + Math.ceil(player.hp), WIDTH/2, HEIGHT/2);
+
             p.text("Play again?", WIDTH/2, 3*HEIGHT/4);
 
             // clear countdown and reset countdown values
@@ -235,6 +240,13 @@ var sketch = function(p) {
             setupTime = 5;
             setupCountdownStarted = false;
             playCountdownStarted = false
+
+            if (emitScore)
+            {
+                p.socket.current.emit("finalScore", {finalScore: player.hp, to: p.to, from:p.from, originalWidth:WIDTH, originalHeight:HEIGHT})
+
+                emitScore = false;
+            }
 
             // Start game again if mouse clicked
             if (p.mouseIsPressed)
@@ -351,10 +363,10 @@ var sketch = function(p) {
 
         // Draw wrists
         p.fill(0, 0, 255);
-        p.ellipse(player.left.x, player.left.y, player.left.r);
+        // p.ellipse(player.left.x, player.left.y, player.left.r);
         p.image(icons['fist'], player.left.x-player.left.r/2, player.left.y-player.left.r/2, player.left.r, player.left.r)
 
-        p.ellipse(player.right.x, player.right.y, player.right.r);
+        // p.ellipse(player.right.x, player.right.y, player.right.r);
         p.image(icons['fist'], player.right.x-player.right.r/2, player.right.y-player.right.r/2, player.right.r, player.right.r)
 
         p.fill(255, 0, 0);
@@ -464,13 +476,9 @@ var sketch = function(p) {
             setInterval(() => {
                 const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
                 p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right, playerHP: player.hp,
-                                                    enemies: cleanEnemies, to: p.to, from:p.from})
+                                                    enemies: cleanEnemies, to: p.to, from:p.from, originalWidth:WIDTH, originalHeight:HEIGHT})
 
-                // console.log("sending canvas to", p.to, "from", p.from)
 
-                // p.socket.current.on("receiveCanvas", (data) => {
-                //     console.log(`received specific message from ${data.from}`)
-                //     });
             }, 30);
             setupListeners = false;
         }

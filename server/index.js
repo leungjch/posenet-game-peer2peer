@@ -68,7 +68,11 @@ io.on('connection', socket => {
     socket.on("sendCanvas", (data) => {
       io.to(data['to']).emit("receiveCanvas", data)
     });
+    socket.on("finalScore", (data) => {
+      io.to(data['to']).emit("receivePeerScore", data) // send to peer
+      io.to(data['from']).emit("receiveYourScore", data) // send to self
 
+    });
 });
 
 

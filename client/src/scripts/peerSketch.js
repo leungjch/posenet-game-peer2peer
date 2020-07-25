@@ -45,7 +45,6 @@ var peerSketch = function(p) {
             peerVideo = document.getElementById("partner")
             peerBounds = peerVideo.getBoundingClientRect();
     
-            // setInterval(() => {
                 p.socket.current.on("receiveCanvas", (data) => {
                     // console.log(`peerCanvas: received specific message from ${data.from}`)
                     // console.log("otherScore is", data.hp)
@@ -109,7 +108,10 @@ var peerSketch = function(p) {
                 
                     }
                     });
-            // }, 1000);
+                p.socket.current.on("receivePeerScore", (data) => {
+                    p.remove();
+                });
+
 
 
             p.resizeCanvas(peerVideo.clientWidth, peerVideo.clientHeight)

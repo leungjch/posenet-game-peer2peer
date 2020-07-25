@@ -168,7 +168,7 @@ var sketch = function(p) {
         {
             // Show timer
             p.textSize(WIDTH/3)
-            p.text(playTime, WIDTH/2, HEIGHT/2)
+            p.text(playTime, WIDTH/3, HEIGHT/2)
             play();
 
             if (playTime <= 0)
@@ -232,7 +232,7 @@ var sketch = function(p) {
             
             p.text("Your score: " + Math.ceil(player.hp), WIDTH/2, HEIGHT/2);
 
-            p.text("Play again?", WIDTH/2, 3*HEIGHT/4);
+            // p.text("Play again?", WIDTH/2, 3*HEIGHT/4);
 
             // clear countdown and reset countdown values
             clearInterval(playIntervalID); 
@@ -243,9 +243,15 @@ var sketch = function(p) {
 
             if (emitScore)
             {
-                p.socket.current.emit("finalScore", {finalScore: player.hp, to: p.to, from:p.from, originalWidth:WIDTH, originalHeight:HEIGHT})
+                if (p.isMulti)
+                {
+                    p.socket.current.emit("finalScore", {finalScore: player.hp, to: p.to, from:p.from, originalWidth:WIDTH, originalHeight:HEIGHT})
+                    p.socket.current.emit("peerGameEnded", {to: p.to, from:p.from})
+
+                }
 
                 emitScore = false;
+                p.remove();
             }
 
             // Start game again if mouse clicked

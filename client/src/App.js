@@ -104,6 +104,9 @@ export default function App() {
   const [youReady, setYouReady] = useState(false); // if you are ready to play
   const [otherReady, setOtherReady] = useState(false); // if other user is ready to play
 
+  const [youDone, setYouDone] = useState(false); // your game done (set when you receive your final score)
+  const [otherDone, setOtherDone] = useState(false); // peer done
+
   const socket = useRef();
   const userVideo = useRef();
   const partnerVideo = useRef();
@@ -256,10 +259,20 @@ export default function App() {
         setOtherReady(data.isReady);
         })
 
-        // socket.current.on("receiveCanvas", (data) => {
-        //   console.log("received head ", data.myHead)
-        // })
-    
+      socket.current.on("receiveYourScore", (data) => {
+        console.log("received my score ", data.finalScore)
+        if (userVideo.current) {
+          userVideo.current.srcObject = stream;
+        }
+        setYouDone(true);
+        setYouReady(false);
+        setOtherReady(false);
+        setPlaying(false);
+      })
+      socket.current.on("receivePeerScore", (data) => {
+
+        console.log("received peer score ", data.finalScore)
+      });
       }, [inviteCode, youReady, otherReady]);
 
     let incomingUserNotification;

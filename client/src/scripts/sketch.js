@@ -245,11 +245,11 @@ var sketch = function(p) {
             {
                 if (p.isMulti)
                 {
-                    p.socket.current.emit("finalScore", {finalScore: player.hp, to: p.to, from:p.from, emitPeer:false})
+                    p.socket.current.emit("finalScore", {finalScore: player.hp, to: p.to, from:p.from, emitPeer:true})
                 }
                 else
                 {
-                    p.socket.current.emit("finalScore", {finalScore: player.hp, from: p.from, emitPeer:true})
+                    p.socket.current.emit("finalScore", {finalScore: player.hp, from: p.from, emitPeer:false})
                 }
 
                 emitScore = false;

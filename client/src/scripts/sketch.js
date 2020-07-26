@@ -25,8 +25,8 @@ var sketch = function(p) {
 
     let icons;
 
-    let setupTime = 5 // 5 seconds to prepare before game starts
-    let playTime = 60 // 60 seconds to play game
+    let setupTime = 1 // 5 seconds to prepare before game starts
+    let playTime = 5 // 60 seconds to play game
 
     let triggerPlay = true; // boolean that is immediately set the false when both players are both ready
 
@@ -40,6 +40,7 @@ var sketch = function(p) {
     let playIntervalID;
 
     let setupListeners = true;
+    var listener;
 
     let myFont;
 
@@ -90,21 +91,26 @@ var sketch = function(p) {
 
         if (p.playerMode === "multi")
         {
-            WIDTH = p.windowWidth/2;
-            HEIGHT = p.windowHeight;  
-            WIDTH = userVideo.clientWidth;
-            HEIGHT = userVideo.clientHeight;
-            WIDTH = 640;
-            // HEIGHT = 480;
-        }
-        else
-        {
-            WIDTH = p.windowWidth;
-            HEIGHT = p.windowHeight;
+            // WIDTH = p.windowWidth/2;
+            // HEIGHT = p.windowHeight;  
+            // WIDTH = userVideo.clientWidth;
+            // HEIGHT = userVideo.clientHeight;
+
             WIDTH = p.windowHeight * scale * 0.8;
             HEIGHT = p.windowHeight * 0.8 ;
             // WIDTH = 640;
             // HEIGHT = 480;
+        }
+        else
+        {
+            // WIDTH = p.windowWidth;
+            // HEIGHT = p.windowHeight;
+            WIDTH = p.windowHeight * scale * 0.8;
+            HEIGHT = p.windowHeight * 0.8 ;
+            WIDTH = window.innerHeight * scale * 0.6;
+            HEIGHT = window.innerHeight * 0.6;
+            WIDTH = 640;
+            HEIGHT = 480;
         }
         p.createCanvas(WIDTH, HEIGHT);
 
@@ -136,6 +142,7 @@ var sketch = function(p) {
                     'robot': p.loadImage('./icons/robot_msft.png')
         }
 
+        enemies = [];
         for (var i = 0; i < 10; i++)
         {
             enemies.push(new Enemy(icons, WIDTH, HEIGHT))
@@ -151,7 +158,7 @@ var sketch = function(p) {
         p.push();
         // Make the webcam view half transparent
         var transparencyc = p.color(255,255,255);
-        transparencyc.setAlpha(p.lerp(128,0, setupTime/5))
+        transparencyc.setAlpha(p.lerp(64,0, setupTime/5))
 
         p.translate(WIDTH,0);  
         // We need to flip the webcam so that movement is less confusing
@@ -230,7 +237,7 @@ var sketch = function(p) {
             p.noStroke();
             
             
-            p.text("Your score: " + Math.ceil(player.hp), WIDTH/2, HEIGHT/2);
+            // p.text("Your score: " + Math.ceil(player.hp), WIDTH/2, HEIGHT/2);
 
             // p.text("Play again?", WIDTH/2, 3*HEIGHT/4);
 
@@ -251,7 +258,7 @@ var sketch = function(p) {
                 {
                     p.socket.current.emit("finalScore", {finalScore: player.hp, from: p.from, emitPeer:false})
                 }
-
+                cleanup();
                 emitScore = false;
                 p.remove();
             }
@@ -264,7 +271,6 @@ var sketch = function(p) {
                 setupIntervalID = setInterval(setupCountDownDec, 1000);
                 setupCountdownStarted = true
                 doneSetup = false
-
                 donePlay = false
             }
         }
@@ -285,8 +291,9 @@ var sketch = function(p) {
 
     function cleanup()
     {
-        player = new Player(WIDTH, HEIGHT);
+        // player = new Player(WIDTH, HEIGHT);
         enemies = []
+        clearInterval(listener)
     }
 
     function play()
@@ -475,7 +482,7 @@ var sketch = function(p) {
         // qtree.show();    
         if (Math.random()>0.5 && enemies.length < 1000)
         {
-            var nAdd = 60 / p.frameRate(); // at 60 fps, add only 1. at 10 fps, add 6. This makes it such that the game is not dependent on framerate (i.e. high framerate players don't have an advantage)
+            var nAdd = Math.min(60 / p.frameRate(),20); // at 60 fps, add only 1. at 10 fps, add 6. This makes it such that the game is not dependent on framerate (i.e. high framerate players don't have an advantage)
             for (let i = 0; i < nAdd; i++)
             {
                 enemies.push(new Enemy(icons, WIDTH, HEIGHT))
@@ -485,12 +492,11 @@ var sketch = function(p) {
         // Set up interval to receive and send canvas data
         if (setupListeners && p.isMulti)
         {
-            setInterval(() => {
+            listener = setInterval(() => {
                 const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
+                console.log("cleanenmieslength is", cleanEnemies.length, enemies.length)
                 p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right, playerHP: player.hp,
                                                     enemies: cleanEnemies, to: p.to, from:p.from, originalWidth:WIDTH, originalHeight:HEIGHT})
-
-
             }, 30);
             setupListeners = false;
         }

@@ -20,23 +20,20 @@ io.on('connection', socket => {
 
     for (var room in rooms)
     {
-      console.log("looping", room, "looking for", socket.id)
-
       if (rooms.hasOwnProperty(room) && rooms[room].includes(socket.id))
       {
         // Emit disconnect message to all clients in room
-        socket.emit('kick', {msg: "Someone disconnected"}) // This doesn't work
         delete rooms[room];
       }
     }
-    console.log(`${socket.id} has left because ${reason}`)
-    console.log("rooms is now", rooms)
+    // console.log(`${socket.id} has left because ${reason}`)
+    // console.log("rooms is now", rooms)
     });
 
     // Create room ID
     socket.on("createRoom", (data) => {
       rooms[data['roomID']] = [socket.id]
-      console.log("received new rooms: ", rooms)
+      // console.log("received new rooms: ", rooms)
     })
 
     // Give user their ID
@@ -44,7 +41,7 @@ io.on('connection', socket => {
 
     socket.on("connectRoom", (data) => {
       io.to(rooms[data.roomToJoin]).emit('hey', {signal: data.signalData, from: data.from})
-      console.log("someone is connecting")
+      // console.log("someone is connecting")
     })
 
     // Inviting user has accepted incoming user
@@ -55,12 +52,12 @@ io.on('connection', socket => {
 
     // Either peers have changed their ready status
     socket.on("sendReady", (data) => {
-      console.log(`emit ready from ${data['from']}`)
+      // console.log(`emit ready from ${data['from']}`)
       io.to(data.to).emit("receiveReady", {isReady: data.isReady})
     })
 
     socket.on("hello", () => {
-      console.log("received hello from sketch")
+      // console.log("received hello from sketch")
     })
 
     // Relay canvas data to other user

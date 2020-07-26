@@ -275,6 +275,13 @@ export default function App() {
         console.log("received my score ", data.finalScore)
         setYourScore(data.finalScore);
 
+        // myp5.remove();
+        myp5 = null;
+        if (document.getElementById("defaultCanvas0"))
+        {
+          document.getElementById("defaultCanvas0").remove()
+        }
+
         // Get normal webcam stream back
         if (!yourVideoExists) {
           navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
@@ -295,6 +302,12 @@ export default function App() {
       })
       socket.current.on("receivePeerScore", (data) => {
         setPeerScore(data.finalScore);
+        otherp5 = null;
+        if (document.getElementById("defaultCanvas1"))
+        {
+          document.getElementById("defaultCanvas1").remove()
+        }
+
         console.log("received peer score ", data.finalScore)
       });
       }, [inviteCode, youReady, otherReady]);
@@ -333,7 +346,7 @@ export default function App() {
           </ButtonGroup>
 
           <Grow in={youDone}>
-            <Card width="50%" style={{borderRadius:"10px"}}>
+            <Card width="50%" style={{borderRadius:"10px", marginTop:"2%"}}>
               <Typography variant = "h3"> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Won! 🎉" : yourScore!=="waiting" && peerScore !=="waiting" && yourScore < peerScore ? "You Lost! 😢" : "Waiting 🕒"} </Typography>
               <Typography variant = "h6"> Your score: {yourScore === "waiting" ? "Waiting" : Math.ceil(yourScore)} </Typography>
               <Typography variant = "h6"> Friend's score: {peerScore === "waiting" ? "Waiting" : Math.ceil(peerScore)} </Typography>
@@ -421,7 +434,7 @@ export default function App() {
   if (yourScore !== "waiting")
   {
     displayLastScore = (
-      <Card>
+      <Card style={{marginBottom:"2%"}}>
       <Typography variant="h4">Your last score: {Math.ceil(yourScore) } </Typography> 
     </Card>
     )

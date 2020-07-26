@@ -22,7 +22,7 @@ var peerSketch = function(p) {
 
         WIDTH = peerVideo.clientWidth;
         HEIGHT = peerVideo.clientHeight;
-
+        console.log("width and height are", WIDTH, HEIGHT)
         canvas = p.createCanvas(WIDTH,HEIGHT);
         console.log("peer dims is", peerBounds)
         canvas.position(peerBounds.left,peerBounds.top);
@@ -51,7 +51,7 @@ var peerSketch = function(p) {
                     p.clear();
                     
                     // Draw background
-                    p.background('rgba(255,255,255, 0.50)')
+                    p.background('rgba(255,255,255, 0.25)')
                     p.fill(255, 255, 0);
 
                     // Draw player
@@ -105,7 +105,7 @@ var peerSketch = function(p) {
                         p.fill(0,0,0)
                         p.textSize(100)
                         p.text(Math.floor(data.playerHP), data.playerHead.x-data.playerHead.r/2, data.playerHead.y-data.playerHead.r/2)
-                
+            
                     }
                     });
                 p.socket.current.on("receivePeerScore", (data) => {

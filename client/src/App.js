@@ -318,7 +318,7 @@ export default function App() {
       incomingUserNotification = (
 
         <Grid item xs = {6}>
-        <Button variant = "contained" color="secondary" onClick={acceptIncoming}>Accept Join Request</Button> 
+        <Button variant = "contained" color="secondary" style={{marginTop:'2%'}} onClick={acceptIncoming}>Accept Join Request</Button> 
         </Grid>
       )
     }
@@ -347,9 +347,9 @@ export default function App() {
 
           <Grow in={youDone}>
             <Card width="50%" style={{borderRadius:"10px", marginTop:"2%"}}>
-              <Typography variant = "h3"> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Won! 🎉" : yourScore!=="waiting" && peerScore !=="waiting" && yourScore < peerScore ? "You Lost! 😢" : "Waiting 🕒"} </Typography>
-              <Typography variant = "h6"> Your score: {yourScore === "waiting" ? "Waiting" : Math.ceil(yourScore)} </Typography>
-              <Typography variant = "h6"> Friend's score: {peerScore === "waiting" ? "Waiting" : Math.ceil(peerScore)} </Typography>
+              <Typography variant = "h2"> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Won! 🎉" : yourScore!=="waiting" && peerScore !=="waiting" && yourScore < peerScore ? "You Lost! 😢" : "Waiting 🕒"} </Typography>
+              <Typography variant = "h4"> Your score: {yourScore === "waiting" ? "Waiting" : Math.ceil(yourScore)} </Typography>
+              <Typography variant = "h4"> Friend's score: {peerScore === "waiting" ? "Waiting" : Math.ceil(peerScore)} </Typography>
             </Card>
           </Grow>
 
@@ -397,8 +397,19 @@ export default function App() {
   let UserVideo;
   if (stream) {
     UserVideo = (
-      <video playsInline id="user" style = {{textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '2%', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} muted ref={userVideo} autoPlay />
-    );
+      <Box
+      display="flex" 
+      flexDirection="column"
+      m="auto"      
+      alignItems="center"
+      justifyContent="center"
+      > 
+      <Card style ={{ padding: 5, paddingBottom: 2, paddingTop:2, display: 'inline-block', marginLeft: '0%', marginBottom:"1px", marginTop: '2%'}} > <Typography variant="h6"> You </Typography> </Card>
+
+      <video playsInline id="user" style = {{marginBottom:"2%", textAlign: 'center', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'inline-block'}} muted ref={userVideo} autoPlay />
+
+      </Box>
+      );
   }
 
   // Render partner video
@@ -408,7 +419,16 @@ export default function App() {
     PartnerVideo = (
     <Grid item xs={12} sm={6}>
       <div id="partnerVideoContainer">
-          <video playsInline id="partner" style={{transform: 'rotateY(180deg)', textAlign: 'center', marginLeft: 'auto', marginRight: "auto", marginTop: '2%', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'block'}} ref={partnerVideo} autoPlay />
+          <Box
+          display="flex" 
+          flexDirection="column"
+          m="auto"      
+          alignItems="center"
+          justifyContent="center"
+          > 
+          <Card style ={{ padding: 5, paddingBottom: 2, paddingTop:2, display: 'inline-block', marginLeft: '0%', marginBottom:"1px", marginTop: '2%'}} > <Typography variant="h6"> Friend </Typography> </Card>
+          <video playsInline id="partner" style={{marginBottom:"2%", textAlign: 'center', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'inline-block'}} ref={partnerVideo} autoPlay />
+          </Box>
       </div>
       </Grid>
     );
@@ -456,6 +476,7 @@ export default function App() {
       spacing={0}
       padding={10}
       justify="center"
+      direction="row" alignItems="center"
       style={{ minHeight: '60vh', maxWidth: '100%' }}
       >
           <Grid item xs={12} sm={6}>

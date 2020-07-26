@@ -107,10 +107,10 @@ var sketch = function(p) {
             // HEIGHT = p.windowHeight;
             WIDTH = p.windowHeight * scale * 0.8;
             HEIGHT = p.windowHeight * 0.8 ;
-            WIDTH = window.innerHeight * scale * 0.6;
-            HEIGHT = window.innerHeight * 0.6;
-            WIDTH = 640;
-            HEIGHT = 480;
+            WIDTH = window.innerHeight * scale * 0.5;
+            HEIGHT = window.innerHeight * 0.8;
+            // WIDTH = 640;
+            // HEIGHT = 480;
         }
         p.createCanvas(WIDTH, HEIGHT);
 
@@ -494,7 +494,6 @@ var sketch = function(p) {
         {
             listener = setInterval(() => {
                 const cleanEnemies = enemies.map(({icon, ...keepAttrs}) => keepAttrs)
-                console.log("cleanenmieslength is", cleanEnemies.length, enemies.length)
                 p.socket.current.emit("sendCanvas", {playerHead: player.head, playerLeft: player.left, playerRight: player.right, playerHP: player.hp,
                                                     enemies: cleanEnemies, to: p.to, from:p.from, originalWidth:WIDTH, originalHeight:HEIGHT})
             }, 30);

@@ -249,7 +249,7 @@ var sketch = function(p) {
                 }
                 else
                 {
-                    p.socket.current.emit("finalScore", {finalScore: player.hp, to: p.to, emitPeer:true})
+                    p.socket.current.emit("finalScore", {finalScore: player.hp, from: p.from, emitPeer:true})
                 }
 
                 emitScore = false;

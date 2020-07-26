@@ -132,6 +132,11 @@ export default function App() {
     {
       myp5 = new p5(sketch);
       myp5.isMulti = false;
+      myp5.socket = socket;
+      myp5.from = yourID;
+
+
+      
       var canvas = document.getElementById('defaultCanvas0');
       canvas.style.display="none";
       userVideo.current.srcObject = canvas.captureStream(60);
@@ -280,6 +285,7 @@ export default function App() {
         setYouReady(false);
         setOtherReady(false);
         setPlaying(false);
+        setPlayingSolo(false);
       })
       socket.current.on("receivePeerScore", (data) => {
         setPeerScore(data.finalScore);
@@ -338,7 +344,6 @@ export default function App() {
     if (youReady && otherReady && !playingMulti)  {
 
       // Create only one canvas
-      
       if (!document.getElementById('defaultCanvas0')) {
           myp5 = new p5(sketch);
           myp5.isMulti = true;
@@ -431,7 +436,7 @@ export default function App() {
 
       {readyButtons}
 
-      <Grow in={!partnerExists && !playingSolo}>
+      <Grow in={!partnerExists && !playing}>
 
       <Box
       justifyContent="center"

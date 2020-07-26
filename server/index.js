@@ -69,7 +69,7 @@ io.on('connection', socket => {
       io.to(data['to']).emit("receiveCanvas", data)
     });
     socket.on("finalScore", (data) => {
-      if (!data['emitSelf']) // if playing multiplayer, emit to peer
+      if (data['emitPeer']) // if playing multiplayer, emit to peer
       {
         io.to(data['to']).emit("receivePeerScore", data) // send to peer
       }

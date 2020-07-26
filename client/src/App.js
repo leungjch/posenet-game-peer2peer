@@ -311,23 +311,26 @@ export default function App() {
     if (incomingAccepted)
     {
       readyButtons = (
-        <Box justifyContent="center" style={{textAlign:'center'}}>
+        <Grow in={!playing} timeout = {1000}>
 
-          <ButtonGroup size="large" color="primary" aria-label="outlined primary button group">
-              <Button onClick={handleReady}>{youReady ? "Click to Unready" : "Click to Ready"} </Button>
-              <Button >{otherReady ? "Friend Ready" : "Friend Not Ready"} </Button>
+        <Box width="50%" m="auto" justify="center" justifyContent="center" style={{textAlign:'center'}}>
+
+          <ButtonGroup variant="contained" size="large" fullWidth = {true} color="primary" aria-label="outlined primary button group">
+              <Button fullWidth = {true} onClick={handleReady}>{youReady ? "Click to Unready" : "Click to Ready"} </Button>
+              <Button fullWidth = {true}>{otherReady ? "Friend Ready" : "Friend Not Ready"} </Button>
           </ButtonGroup>
 
-          <Grow in={youDone}>
-            <Card>
-              <Typography> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Win! 🎉" : "You Lost! 😢"} </Typography>
-              <Typography> Your final score: {Math.ceil(yourScore)} </Typography>
-              <Typography> Friend's score: {Math.ceil(peerScore)} </Typography>
+          <Grow in={!youDone}>
+            <Card width="50%" style={{borderRadius:"10px"}}>
+              <Typography variant = "h3"> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Won! 🎉" : yourScore!=="waiting" && peerScore !=="waiting" && yourScore < peerScore ? "You Lost! 😢" : "Waiting 🕒"} </Typography>
+              <Typography variant = "h6"> Your score: {yourScore === "waiting" ? "Waiting" : Math.ceil(yourScore)} </Typography>
+              <Typography variant = "h6"> Friend's score: {peerScore === "waiting" ? "Waiting" : Math.ceil(peerScore)} </Typography>
             </Card>
           </Grow>
 
-
         </Box>
+        </Grow>
+
         )
     }
 

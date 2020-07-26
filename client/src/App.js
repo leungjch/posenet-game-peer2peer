@@ -134,12 +134,11 @@ export default function App() {
       myp5.isMulti = false;
       myp5.socket = socket;
       myp5.from = yourID;
-
-
       
       var canvas = document.getElementById('defaultCanvas0');
       canvas.style.display="none";
       userVideo.current.srcObject = canvas.captureStream(60);
+
       console.log("play game");
       
       setPlayingSolo(true);
@@ -277,15 +276,22 @@ export default function App() {
         setYourScore(data.finalScore);
 
         // Get normal webcam stream back
-        if (userVideo.current) {
-          userVideo.current.srcObject = stream;
-        }
+        if (!yourVideoExists) {
+          navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+            setStream(stream);
+            if (userVideo.current) {
+              userVideo.current.srcObject = stream;
+            }
+          })
+          setYourVideoExists(true);
+          }
 
         setYouDone(true);
         setYouReady(false);
         setOtherReady(false);
         setPlaying(false);
         setPlayingSolo(false);
+        setPlayingMulti(false);
       })
       socket.current.on("receivePeerScore", (data) => {
         setPeerScore(data.finalScore);
@@ -317,16 +323,16 @@ export default function App() {
     if (incomingAccepted)
     {
       readyButtons = (
-        <Grow in={!playing} timeout = {1000}>
+        <Grow in={!playing} timeout = {1500}>
 
         <Box width="50%" m="auto" justify="center" justifyContent="center" style={{textAlign:'center'}}>
 
           <ButtonGroup variant="contained" size="large" fullWidth = {true} color="primary" aria-label="outlined primary button group">
-              <Button fullWidth = {true} onClick={handleReady}>{youReady ? "Click to Unready" : "Click to Ready"} </Button>
-              <Button fullWidth = {true}>{otherReady ? "Friend Ready" : "Friend Not Ready"} </Button>
+              <Button fullWidth = {true} color={youReady? "primary" : "secondary"} onClick={handleReady}>{youReady ? "Click to Unready" : "Click to Ready"} </Button>
+              <Button fullWidth = {true} color={otherReady ? "primary" : "secondary"}>{otherReady ? "Friend Ready" : "Friend Not Ready"} </Button>
           </ButtonGroup>
 
-          <Grow in={!youDone}>
+          <Grow in={youDone}>
             <Card width="50%" style={{borderRadius:"10px"}}>
               <Typography variant = "h3"> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Won! 🎉" : yourScore!=="waiting" && peerScore !=="waiting" && yourScore < peerScore ? "You Lost! 😢" : "Waiting 🕒"} </Typography>
               <Typography variant = "h6"> Your score: {yourScore === "waiting" ? "Waiting" : Math.ceil(yourScore)} </Typography>
@@ -411,6 +417,19 @@ export default function App() {
       <Button variant="contained" fullWidth={true} style={{textTransform: 'none'}} onClick={() => {navigator.clipboard.writeText(inviteCode)}}>Your Invite Code: {inviteCode}</Button> 
     );
   }
+  let displayLastScore;
+  if (yourScore !== "waiting")
+  {
+    displayLastScore = (
+      <Card>
+      <Typography variant="h4">Your last score: {Math.ceil(yourScore) } </Typography> 
+    </Card>
+    )
+  }
+  else
+  {
+    displayLastScore = null;
+  }
 
   const classes = useStyles();
   return (
@@ -436,7 +455,7 @@ export default function App() {
 
       {readyButtons}
 
-      <Grow in={!partnerExists && !playing}>
+      <Grow in={!partnerExists && !playing && yourVideoExists}>
 
       <Box
       justifyContent="center"
@@ -444,6 +463,7 @@ export default function App() {
       width="50%"
       m="auto"
       >
+        {displayLastScore}
 
         <Grid container spacing = {3} 
         style={{backgroundColor: "#999999", borderRadius: 10}}>

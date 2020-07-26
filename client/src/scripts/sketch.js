@@ -475,7 +475,11 @@ var sketch = function(p) {
         // qtree.show();    
         if (Math.random()>0.5 && enemies.length < 1000)
         {
-            enemies.push(new Enemy(icons, WIDTH, HEIGHT))
+            var nAdd = 60 / p.frameRate(); // at 60 fps, add only 1. at 10 fps, add 6. This makes it such that the game is not dependent on framerate (i.e. high framerate players don't have an advantage)
+            for (let i = 0; i < nAdd; i++)
+            {
+                enemies.push(new Enemy(icons, WIDTH, HEIGHT))
+            }
         }
 
         // Set up interval to receive and send canvas data

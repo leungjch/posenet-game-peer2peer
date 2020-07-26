@@ -47,18 +47,27 @@ const themeLight = createMuiTheme({
 
 const themeDark = createMuiTheme({
   palette: {
+    primary: {
+      main: '#2f4e86'
+    },
+    secondary: {
+      main: '#9c2e2e'
+    },
     background: {
-      default: "#222222"
+      default: '#121212'
     },
     text: {
-      primary: "#000000"
-    }
+      primary: "#ffffff"
+    },
   }
 });
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
+  },
+  buttons: {
+    backgroundColor:"#2c2c47"
   },
   webcamView: {
     border: 5,
@@ -68,12 +77,18 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: 'grid',
     gridTemplateColumns: 'repeat(12, 1fr)',
-    gridGap: theme.spacing(3),
+    gridGap: theme.spacing(1),
   },
   paper: {
     padding: theme.spacing(1),
     textAlign: 'center',
-    color: theme.palette.text.secondary,
+    color: 'white',
+    backgroundColor: '#1f1f1f',
+    
+    borderRadius: "3px",
+    // borderWidth:"1px",
+    // borderStyle:"solid",
+    // borderColor: "white",
     whiteSpace: 'nowrap',
     marginBottom: theme.spacing(1),
   },
@@ -82,7 +97,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
 export default function App() {
+
+  const classes = useStyles();
+
+
   const [yourID, setYourID] = useState("");
   const [yourVideoExists, setYourVideoExists] = useState(false)
   const [partnerExists, setPartnerExists] = useState(false)
@@ -346,7 +366,7 @@ export default function App() {
           </ButtonGroup>
 
           <Grow in={youDone}>
-            <Card width="50%" style={{borderRadius:"10px", marginTop:"2%"}}>
+            <Card width="50%" class={classes.paper} style={{borderRadius:"10px", marginTop:"2%"}}>
               <Typography variant = "h2"> {yourScore!=="waiting" && peerScore !=="waiting" && yourScore > peerScore ? "You Won! 🎉" : yourScore!=="waiting" && peerScore !=="waiting" && yourScore < peerScore ? "You Lost! 😢" : "Waiting 🕒"} </Typography>
               <Typography variant = "h4"> Your score: {yourScore === "waiting" ? "Waiting" : Math.ceil(yourScore)} </Typography>
               <Typography variant = "h4"> Friend's score: {peerScore === "waiting" ? "Waiting" : Math.ceil(peerScore)} </Typography>
@@ -404,7 +424,7 @@ export default function App() {
       alignItems="center"
       justifyContent="center"
       > 
-      <Card style ={{ padding: 5, paddingBottom: 2, paddingTop:2, display: 'inline-block', marginLeft: '0%', marginBottom:"1px", marginTop: '2%'}} > <Typography variant="h6"> You </Typography> </Card>
+      <Card class={classes.paper} style ={{ padding: 5, paddingBottom: 2, paddingTop:2, display: 'inline-block', marginLeft: '0%', marginBottom:"1px", marginTop: '2%'}} > <Typography variant="h6"> You </Typography> </Card>
 
       <video playsInline id="user" style = {{marginBottom:"2%", textAlign: 'center', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'inline-block'}} muted ref={userVideo} autoPlay />
 
@@ -417,7 +437,7 @@ export default function App() {
   if (incomingAccepted)
   {
     PartnerVideo = (
-    <Grid item xs={12} sm={6}>
+    <Grid item xs={ playing ? 4 : 6}>
       <div id="partnerVideoContainer">
           <Box
           display="flex" 
@@ -426,8 +446,8 @@ export default function App() {
           alignItems="center"
           justifyContent="center"
           > 
-          <Card style ={{ padding: 5, paddingBottom: 2, paddingTop:2, display: 'inline-block', marginLeft: '0%', marginBottom:"1px", marginTop: '2%'}} > <Typography variant="h6"> Friend </Typography> </Card>
-          <video playsInline id="partner" style={{marginBottom:"2%", textAlign: 'center', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'inline-block'}} ref={partnerVideo} autoPlay />
+          <Card class={classes.paper} style ={{ padding: 5, paddingBottom: 2, paddingTop:2, display: 'inline-block', marginBottom:"1px", marginTop: '2%'}} > <Typography variant="h6"> Friend </Typography> </Card>
+          <video playsInline id="partner" style={{transform: 'rotateY(180deg)', marginBottom:"2%", textAlign: 'center', marginLeft: 'auto', marginRight: 'auto', borderStyle:"solid", borderRadius:'10px', borderColor:"white", borderWidth:"2px", display:'inline-block'}} ref={partnerVideo} autoPlay />
           </Box>
       </div>
       </Grid>
@@ -447,14 +467,14 @@ export default function App() {
   if (inviteCode !== '')
   {
     inviteCodeElement = (
-      <Button variant="contained" fullWidth={true} style={{textTransform: 'none'}} onClick={() => {navigator.clipboard.writeText(inviteCode)}}>Your Invite Code: {inviteCode}</Button> 
+      <Button variant="contained" color="secondary" fullWidth={true} style={{textTransform: 'none'}} onClick={() => {navigator.clipboard.writeText(inviteCode)}}>Invite Code: {inviteCode} (Click to Copy)</Button> 
     );
   }
   let displayLastScore;
   if (yourScore !== "waiting")
   {
     displayLastScore = (
-      <Card style={{marginBottom:"2%"}}>
+      <Card class = {classes.paper} style={{marginBottom:"2%"}}>
       <Typography variant="h4">Your last score: {Math.ceil(yourScore) } </Typography> 
     </Card>
     )
@@ -464,7 +484,6 @@ export default function App() {
     displayLastScore = null;
   }
 
-  const classes = useStyles();
   return (
     <MuiThemeProvider theme = {themeDark}>
       <CssBaseline />
@@ -474,12 +493,12 @@ export default function App() {
       <Grid
       container
       spacing={0}
-      padding={10}
+      padding={0}
       justify="center"
       direction="row" alignItems="center"
       style={{ minHeight: '60vh', maxWidth: '100%' }}
       >
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={playing ? 8 : 6}>
             {UserVideo}
           </Grid> 
           {PartnerVideo}
@@ -500,17 +519,24 @@ export default function App() {
         {displayLastScore}
 
         <Grid container spacing = {3} 
-        style={{backgroundColor: "#999999", borderRadius: 10}}>
+        style={{backgroundColor: "#0d0d19", borderRadius: 10, borderColor: "#10121f", borderStyle:"solid", borderWidth:"2px"}}>
           <Grid item xs={12}>
           <Button onClick = {playSolo} variant="contained" color="primary" size="large" fullWidth={true}>Play Solo</Button>
           </Grid>
 
           <Grid item xs = {6}>
-            <TextField id="filled-basic" color="primary" onChange={(event) => setInputInviteCode(event.target.value)} fullWidth = {true} label="Invite Code" variant="filled" />
+            <TextField id="filled-basic" 
+            color="primary" style={{multilineColor: "white", backgroundColor:"#2c2c47", borderRadius: "3px", color:"white"}} 
+            onChange={(event) => setInputInviteCode(event.target.value)} 
+            fullWidth = {true} 
+            InputLabelProps={{
+              style: { color: '#eeeeee' },
+            }}          
+            label="Enter Invite Code" variant="filled" />
           </Grid>
 
           <Grid item xs = {6}>
-          <Button onClick = {generateInvite} variant="contained" color="primary" fullWidth={true}>Generate Invite Code</Button>
+          <Button onClick = {generateInvite} style={{height:"100%"}} variant="contained" color="primary" fullWidth={true}>Generate Invite Code</Button>
           </Grid>
 
           <Grid item xs = {6}>

@@ -522,7 +522,7 @@ export default function App() {
         {displayLastScore}
 
         <Grid container spacing = {3} 
-        style={{backgroundColor: "#0d0d19", borderRadius: 10, borderColor: "#111111", borderStyle:"solid", borderWidth:"2px"}}>
+        style={{backgroundColor: "#1e225c", borderRadius: 10, borderColor: "#111111", borderStyle:"solid", borderWidth:"2px"}}>
           <Grid item xs={12}>
           <Button onClick = {playSolo} variant="contained" color="primary" size="large" fullWidth={true}>Play Solo</Button>
           </Grid>

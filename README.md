@@ -4,7 +4,7 @@ Use your hands to smash down an onslaught of emojis coming for your head, and ai
 
 ## Play it here ##
 
-[Link to game (please be patient as this is hosted on a free Heroku dyno which sleeps)](https://posenet-game-p2p-react.herokuapp.com/)
+[Link to game (it may take ~30 seconds to wake up the Heroku Dyno, afterwards it will load quickly)](https://posenet-game-p2p-react.herokuapp.com/)
 
 ## Gameplay Instructions
 

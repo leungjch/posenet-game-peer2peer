@@ -108,6 +108,8 @@ export default function App() {
   const [partnerExists, setPartnerExists] = useState(false)
 
   const [yourScore, setYourScore] = useState('waiting');
+  const [yourMaxScore, setYourMaxScore] = useState(0);
+
   const [peerScore, setPeerScore] = useState('waiting');
 
   const [userInactive, setUserInactive] = useState(false)
@@ -475,7 +477,8 @@ export default function App() {
   {
     displayLastScore = (
       <Card class = {classes.paper} style={{marginBottom:"2%"}}>
-      <Typography variant="h4">Your last score: {Math.ceil(yourScore) } </Typography> 
+      <Typography variant="h4">Last Score: {Math.ceil(yourScore)} </Typography> 
+
     </Card>
     )
   }
@@ -519,7 +522,7 @@ export default function App() {
         {displayLastScore}
 
         <Grid container spacing = {3} 
-        style={{backgroundColor: "#0d0d19", borderRadius: 10, borderColor: "#10121f", borderStyle:"solid", borderWidth:"2px"}}>
+        style={{backgroundColor: "#0d0d19", borderRadius: 10, borderColor: "#111111", borderStyle:"solid", borderWidth:"2px"}}>
           <Grid item xs={12}>
           <Button onClick = {playSolo} variant="contained" color="primary" size="large" fullWidth={true}>Play Solo</Button>
           </Grid>

@@ -25,8 +25,8 @@ var sketch = function(p) {
 
     let icons;
 
-    let setupTime = 1 // 5 seconds to prepare before game starts
-    let playTime = 5 // 60 seconds to play game
+    let setupTime = 5 // 5 seconds to prepare before game starts
+    let playTime = 60 // 60 seconds to play game
 
     let triggerPlay = true; // boolean that is immediately set the false when both players are both ready
 
@@ -480,7 +480,7 @@ var sketch = function(p) {
             }
         }
         // qtree.show();    
-        if (Math.random()>0.5 && enemies.length < 1000)
+        if (Math.random()>0.2 && enemies.length < 300)
         {
             var nAdd = Math.min(60 / p.frameRate(),20); // at 60 fps, add only 1. at 10 fps, add 6. This makes it such that the game is not dependent on framerate (i.e. high framerate players don't have an advantage)
             for (let i = 0; i < nAdd; i++)

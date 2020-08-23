@@ -174,9 +174,9 @@ var sketch = function(p) {
         if (doneSetup && !donePlay)
         {
             // Show timer
-            p.textSize(WIDTH/3)
-            p.text(playTime, WIDTH/3, HEIGHT/2)
             play();
+            p.textSize(WIDTH/4)
+            p.text(playTime, WIDTH/16, HEIGHT-HEIGHT/12)
 
             if (playTime <= 0)
             {
@@ -480,7 +480,7 @@ var sketch = function(p) {
             }
         }
         // qtree.show();    
-        if (Math.random()>0.2 && enemies.length < 300)
+        if (Math.random()>0.2 && enemies.length < 50)
         {
             var nAdd = Math.min(60 / p.frameRate(),20); // at 60 fps, add only 1. at 10 fps, add 6. This makes it such that the game is not dependent on framerate (i.e. high framerate players don't have an advantage)
             for (let i = 0; i < nAdd; i++)

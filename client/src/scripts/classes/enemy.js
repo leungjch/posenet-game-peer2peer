@@ -11,7 +11,7 @@ function choose(choices) {
 export class Enemy {
     constructor(icons, WIDTH, HEIGHT)
     {
-        this.types = ['roamer', 'seeker', 'robot']
+        this.types = ['roamer', 'seeker', 'seeker', 'robot']
         // this.types = ['roamer']
 
         this.type = choose(this.types);
